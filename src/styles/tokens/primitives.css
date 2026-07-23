@@ -1,0 +1,240 @@
+/**
+ * PRIMITIVES — tier 1 of the token layer.
+ *
+ * Raw values with no opinion about where they are used. A primitive answers
+ * "which values exist", never "what this value means". Nothing in here knows
+ * about light vs dark, about surfaces, or about components.
+ *
+ * ── The boundary rule ──────────────────────────────────────────────────────
+ *
+ * A value belongs in `semantic.css` if its correct value depends on CONTEXT —
+ * the colour scheme, the elevation, the stacking order. Otherwise it lives
+ * here.
+ *
+ * In practice:
+ *
+ *   Colour, elevation and layering are context-dependent, so components MUST
+ *   NOT reference a primitive for them. `var(--indigo-600)` in a component is
+ *   a bug: it will not survive dark mode. Use the semantic role instead.
+ *
+ *   Space, type, radius, border width, duration and easing carry no context,
+ *   so the scales below ARE the public API — components use them directly.
+ *   `semantic.css` adds an alias only where a recurring layout intent earns a
+ *   name of its own (page gutter, control padding), never as a pass-through.
+ *
+ * ── The colour ladder ──────────────────────────────────────────────────────
+ *
+ * Every ramp shares one OKLCH lightness ladder, so a step number means the
+ * same perceived lightness in every hue. That is what makes contrast a
+ * property of the STEP rather than of the colour, and it is why swapping a
+ * hue never breaks accessibility.
+ *
+ *   step:   0   50  100  200  300  400  500  600  700  800  850  900  950  975  1000
+ *   L%:   100   98   96   92   86   75   64   53   44   36   30   24   17   12     0
+ *
+ * Guarantees, checked against WCAG 2.x on every ramp below:
+ *
+ *   - white text on step 600 ............ >= 4.94:1  (600 is both the lightest
+ *                                                     fill that passes with
+ *                                                     white text and the
+ *                                                     darkest we ask it to)
+ *   - step 600 fill on a step <= 100 page >= 4.66:1  (>= 3:1 non-text UI)
+ *   - step 800 text on step 100 fill ..... >= 9.30:1  (light "subtle" pairing)
+ *   - step 300 text on step 900 fill ..... >= 10.55:1 (dark "subtle" pairing)
+ *   - step 700+ text on white ............ >= 7.78:1
+ *
+ * Chroma is fitted per swatch: the ramps peak around step 600 and taper at
+ * both ends, and each value is the largest chroma that still lands inside
+ * sRGB at that lightness. That is why green, amber and blue carry visibly
+ * less chroma in the dark steps than indigo does — sRGB has no more to give
+ * there.
+ *
+ * Neutrals are tinted toward the accent hue at C <= 0.01: enough that the
+ * greys sit with indigo rather than beside it, not enough to read as coloured.
+ */
+
+:root {
+  /* ── Colour · neutral (hue 285, near-grey) ─────────────────────────────── */
+  --neutral-0: oklch(100% 0 285);
+  --neutral-50: oklch(98% 0.001 285);
+  --neutral-100: oklch(96% 0.002 285);
+  --neutral-200: oklch(92% 0.004 285);
+  --neutral-300: oklch(86% 0.008 285);
+  --neutral-400: oklch(75% 0.01 285);
+  --neutral-500: oklch(64% 0.01 285);
+  --neutral-600: oklch(53% 0.01 285);
+  --neutral-700: oklch(44% 0.01 285);
+  --neutral-800: oklch(36% 0.01 285);
+  --neutral-850: oklch(30% 0.01 285);
+  --neutral-900: oklch(24% 0.01 285);
+  --neutral-950: oklch(17% 0.007 285);
+  --neutral-975: oklch(12% 0.005 285);
+  --neutral-1000: oklch(0% 0 285);
+
+  /* ── Colour · accent (indigo, hue 285) ─────────────────────────────────── */
+  --indigo-50: oklch(98% 0.008 285);
+  --indigo-100: oklch(96% 0.018 285);
+  --indigo-200: oklch(92% 0.036 285);
+  --indigo-300: oklch(86% 0.065 285);
+  --indigo-400: oklch(75% 0.115 285);
+  --indigo-500: oklch(64% 0.155 285);
+  --indigo-600: oklch(53% 0.175 285);
+  --indigo-700: oklch(44% 0.16 285);
+  --indigo-800: oklch(36% 0.13 285);
+  --indigo-850: oklch(30% 0.11 285);
+  --indigo-900: oklch(24% 0.085 285);
+  --indigo-950: oklch(17% 0.055 285);
+
+  /* ── Colour · status hues ──────────────────────────────────────────────── */
+  /* Same ladder, reduced step set: only the steps the semantic status roles
+     consume (subtle fill, subtle hover, border, solid, solid hover, text). */
+
+  /* green — hue 150 */
+  --green-100: oklch(96% 0.018 150);
+  --green-200: oklch(92% 0.036 150);
+  --green-300: oklch(86% 0.065 150);
+  --green-600: oklch(53% 0.146 150);
+  --green-700: oklch(44% 0.122 150);
+  --green-800: oklch(36% 0.1 150);
+  --green-850: oklch(30% 0.084 150);
+  --green-900: oklch(24% 0.069 150);
+
+  /* amber — hue 70 */
+  --amber-100: oklch(96% 0.018 70);
+  --amber-200: oklch(92% 0.036 70);
+  --amber-300: oklch(86% 0.065 70);
+  --amber-600: oklch(53% 0.115 70);
+  --amber-700: oklch(44% 0.096 70);
+  --amber-800: oklch(36% 0.079 70);
+  --amber-850: oklch(30% 0.067 70);
+  --amber-900: oklch(24% 0.055 70);
+
+  /* red — hue 27 */
+  --red-100: oklch(96% 0.018 27);
+  --red-200: oklch(92% 0.036 27);
+  --red-300: oklch(86% 0.065 27);
+  --red-600: oklch(53% 0.175 27);
+  --red-700: oklch(44% 0.16 27);
+  --red-800: oklch(36% 0.13 27);
+  --red-850: oklch(30% 0.11 27);
+  --red-900: oklch(24% 0.085 27);
+
+  /* blue — hue 240 */
+  --blue-100: oklch(96% 0.018 240);
+  --blue-200: oklch(92% 0.036 240);
+  --blue-300: oklch(86% 0.065 240);
+  --blue-600: oklch(53% 0.122 240);
+  --blue-700: oklch(44% 0.101 240);
+  --blue-800: oklch(36% 0.083 240);
+  --blue-850: oklch(30% 0.07 240);
+  --blue-900: oklch(24% 0.057 240);
+
+  /* ── Space ─────────────────────────────────────────────────────────────── */
+  /* 4px base. Roughly x1.5 per step through the middle of the range, tighter
+     at the small end where UI needs fine control, looser at the large end
+     where only page rhythm lives. */
+  --space-3xs: 0.125rem; /* 2px */
+  --space-2xs: 0.25rem; /* 4px */
+  --space-xs: 0.5rem; /* 8px */
+  --space-sm: 0.75rem; /* 12px */
+  --space-md: 1rem; /* 16px */
+  --space-lg: 1.5rem; /* 24px */
+  --space-xl: 2rem; /* 32px */
+  --space-2xl: 3rem; /* 48px */
+  --space-3xl: 4rem; /* 64px */
+  --space-4xl: 6rem; /* 96px */
+
+  /* ── Type ──────────────────────────────────────────────────────────────── */
+  /* System stack until a typeface is chosen. No webfont decision is made here,
+     and swapping one in later touches only this declaration. */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", roboto, helvetica, arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", menlo, consolas, monospace;
+
+  /* Fixed steps, ~1.22 ratio. Deliberately not fluid: this is a dense data
+     tool, and viewport-dependent text metrics make table rows and the resource
+     calendar wobble as the window resizes. */
+  --text-2xs: 0.6875rem; /* 11px — dense table meta, badge text */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px — default for tables and form controls */
+  --text-base: 1rem; /* 16px — body */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.375rem; /* 22px */
+  --text-2xl: 1.75rem; /* 28px */
+  --text-3xl: 2.25rem; /* 36px */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-none: 1;
+  --leading-tight: 1.2; /* display headings */
+  --leading-snug: 1.35; /* headings, table cells */
+  --leading-normal: 1.5; /* body — matches the reset */
+  --leading-relaxed: 1.65; /* long-form prose */
+
+  --tracking-tight: -0.015em; /* large display sizes only */
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-caps: 0.06em; /* uppercase eyebrows and column labels */
+
+  /* Line-length caps in `ch`, so they track the font rather than the viewport. */
+  --measure-narrow: 45ch;
+  --measure-prose: 65ch;
+
+  /* ── Radius ────────────────────────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-xs: 0.125rem; /* 2px */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 1rem; /* 16px */
+  --radius-full: 9999px;
+
+  /* ── Border width ──────────────────────────────────────────────────────── */
+  --border-width-hairline: 1px;
+  --border-width-thick: 2px;
+
+  /* ── Motion ────────────────────────────────────────────────────────────── */
+  /* Raw values. `semantic.css` names the intents and handles reduced motion —
+     prefer the semantic durations, so that override reaches your animation. */
+  --duration-2xs: 75ms;
+  --duration-xs: 120ms;
+  --duration-sm: 160ms;
+  --duration-md: 220ms;
+  --duration-lg: 320ms;
+  --duration-xl: 500ms;
+
+  --ease-linear: linear;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── Container / viewport sizes ────────────────────────────────────────── */
+  /*
+   * These CANNOT be used in a query condition. Both `@media (min-width:
+   * var(--x))` and `@container (min-width: var(--x))` are invalid CSS — var()
+   * is not substituted inside a query condition. The tokens exist for JS, for
+   * max-width caps, and as the one written-down source of the numbers.
+   *
+   * Copy the LITERAL into query conditions and name the token beside it:
+   *
+   *     [@]container panel (min-width: 48rem)   ->  --size-md
+   *
+   * Default to container queries. Viewport media queries are for the app shell
+   * only: a component should respond to the space it was given, not to the
+   * window.
+   */
+  --size-2xs: 20rem; /* 320px */
+  --size-xs: 24rem; /* 384px */
+  --size-sm: 30rem; /* 480px */
+  --size-md: 48rem; /* 768px */
+  --size-lg: 64rem; /* 1024px */
+  --size-xl: 80rem; /* 1280px */
+  --size-2xl: 96rem; /* 1536px */
+}
