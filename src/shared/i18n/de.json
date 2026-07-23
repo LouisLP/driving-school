@@ -1,0 +1,13 @@
+{
+  "actions": {
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "search": "Suchen"
+  },
+  "states": {
+    "empty": "Noch nichts vorhanden",
+    "error": "Etwas ist schiefgelaufen",
+    "loading": "Wird geladen…"
+  }
+}
