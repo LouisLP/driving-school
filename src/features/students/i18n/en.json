@@ -1,0 +1,13 @@
+{
+  "title": "Students",
+  "list": {
+    "title": "All students",
+    "empty": "No students yet",
+    "count": "{count} student | {count} students"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "licenceClass": "Licence class"
+  }
+}

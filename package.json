@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "i18n:types": "node scripts/generate-i18n-types.ts",
+    "type-check": "npm run i18n:types && vue-tsc --build"
   },
   "dependencies": {
     "pinia": "^4.0.2",

@@ -13,6 +13,8 @@
   },
   // Override to include only test files and clear exclusions.
   // Application code imported in tests is automatically included via module resolution.
-  "include": ["src/**/__tests__/*", "env.d.ts"],
+  // `locale-messages.generated.d.ts` is ambient (nothing imports it), so it has
+  // to be listed explicitly or `t()` loses its typed keys inside tests.
+  "include": ["src/**/__tests__/*", "env.d.ts", "src/i18n/locale-messages.generated.d.ts"],
   "exclude": []
 }
