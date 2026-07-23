@@ -6,6 +6,7 @@ import App from './App.vue'
 import { i18n, reportMessageDrift } from './i18n'
 import router from './router'
 
+import './styles/index.css'
 if (import.meta.env.DEV)
   reportMessageDrift()
 

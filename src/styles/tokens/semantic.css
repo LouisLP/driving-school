@@ -1,0 +1,290 @@
+/**
+ * SEMANTIC — tier 2 of the token layer.
+ *
+ * Roles, not values and not components. A semantic token answers "what is this
+ * for" — `--surface-raised`, `--text-muted`, `--border-strong` — and resolves
+ * to a primitive. Components consume these; they never reach past this file to
+ * a raw colour.
+ *
+ * ── Role-based, not componentised ──────────────────────────────────────────
+ *
+ * There is deliberately no `--button-bg` tier. A component that needs a local
+ * knob declares it inside its own scoped style, defaulting to a role:
+ *
+ *     .button {
+ *       --_bg: var(--accent-solid);
+ *       background: var(--_bg);
+ *     }
+ *     .button[data-variant="ghost"] { --_bg: transparent; }
+ *
+ * That keeps this vocabulary small and stable — it does not grow every time a
+ * component is added — while still leaving each component themable per
+ * instance.
+ *
+ * ── Dark mode is authored now, not retrofitted ─────────────────────────────
+ *
+ * Every context-dependent token is written as `light-dark(light, dark)`, and
+ * `color-scheme: light dark` below makes both branches live. Dark mode
+ * therefore already works from the OS preference, with no toggle built. Adding
+ * an in-app toggle later is one line — set `color-scheme: light` or `dark` on
+ * `:root` (or on any subtree, which is how you get an inverted panel) — and
+ * touches none of these tokens.
+ *
+ * The corollary is the rule that makes it hold: a colour, shadow or z-index in
+ * a component MUST come from this file. Reach for `var(--indigo-600)` in a
+ * component and that spot stays light-mode forever.
+ *
+ * ── Elevation in dark mode ─────────────────────────────────────────────────
+ *
+ * A drop shadow on a near-black page is nearly invisible, so depth is carried
+ * by two things at once: the raised surfaces get LIGHTER as they rise (in
+ * light mode they stay white and the shadow does the work), and the dark
+ * shadows are tighter and much stronger. Use `--surface-raised` and
+ * `--shadow-*` together, not one or the other.
+ */
+
+/*
+ * Turns on both branches of every `light-dark()` below, and gives form
+ * controls, scrollbars and the like their scheme-appropriate rendering.
+ * This one declaration is the theme switch for the whole app.
+ */
+html {
+  color-scheme: light dark;
+
+  /* Native controls (checkbox, radio, range, progress) and the text caret. */
+  accent-color: var(--accent-solid);
+  caret-color: var(--accent-solid);
+}
+
+:root {
+  /* ── Surfaces ──────────────────────────────────────────────────────────── */
+  /* Ordered by elevation: sunken < page < raised < overlay. */
+  --surface-sunken: light-dark(var(--neutral-100), var(--neutral-975));
+  --surface-page: light-dark(var(--neutral-50), var(--neutral-950));
+  --surface-raised: light-dark(var(--neutral-0), var(--neutral-900));
+  --surface-overlay: light-dark(var(--neutral-0), var(--neutral-850));
+
+  /* Interaction states for neutral surfaces. */
+  --surface-hover: light-dark(var(--neutral-100), var(--neutral-850));
+  --surface-active: light-dark(var(--neutral-200), var(--neutral-800));
+  --surface-selected: light-dark(var(--indigo-100), var(--indigo-900));
+  --surface-disabled: light-dark(var(--neutral-100), var(--neutral-850));
+
+  /* Backdrop behind a modal. Same in both schemes — it darkens, it does not
+     theme. */
+  --surface-scrim: oklch(17% 0.007 285 / 0.6);
+
+  /* ── Text ──────────────────────────────────────────────────────────────── */
+  --text-primary: light-dark(var(--neutral-900), var(--neutral-50));
+  --text-secondary: light-dark(var(--neutral-700), var(--neutral-300));
+  --text-muted: light-dark(var(--neutral-600), var(--neutral-400));
+
+  /* Below 4.5:1 by design. Must never carry information that is not also
+     available elsewhere. */
+  --text-placeholder: light-dark(var(--neutral-500), var(--neutral-500));
+  --text-disabled: light-dark(var(--neutral-400), var(--neutral-600));
+
+  /* Text and icons sitting on any `*-solid` fill. White in both schemes: the
+     solid steps are chosen so this always clears 4.5:1. */
+  --text-on-solid: var(--neutral-0);
+
+  --text-accent: light-dark(var(--indigo-700), var(--indigo-300));
+  --text-link: light-dark(var(--indigo-700), var(--indigo-300));
+  --text-link-hover: light-dark(var(--indigo-800), var(--indigo-200));
+
+  /* ── Borders ───────────────────────────────────────────────────────────── */
+  /* `subtle` and `default` are decorative separators. `strong` and
+     `--field-border` are the ones that carry meaning and clear 3:1. */
+  --border-subtle: light-dark(var(--neutral-200), var(--neutral-850));
+  --border-default: light-dark(var(--neutral-300), var(--neutral-800));
+  --border-strong: light-dark(var(--neutral-500), var(--neutral-600));
+  --border-accent: light-dark(var(--indigo-600), var(--indigo-400));
+
+  /* ── Accent ────────────────────────────────────────────────────────────── */
+  /* Hover and active darken in BOTH schemes rather than lightening in dark.
+     Lightening past step 600 would drop white-on-solid below 4.5:1, and a
+     state that fails contrast is worse than one that reads slightly
+     unconventionally. */
+  --accent-solid: light-dark(var(--indigo-600), var(--indigo-600));
+  --accent-solid-hover: light-dark(var(--indigo-700), var(--indigo-700));
+  --accent-solid-active: light-dark(var(--indigo-800), var(--indigo-800));
+  --accent-subtle: light-dark(var(--indigo-100), var(--indigo-900));
+  --accent-subtle-hover: light-dark(var(--indigo-200), var(--indigo-850));
+  --accent-border: light-dark(var(--indigo-300), var(--indigo-800));
+  --accent-text: light-dark(var(--indigo-800), var(--indigo-300));
+
+  /* ── Status ────────────────────────────────────────────────────────────── */
+  /* Four roles, identical shape, so a Badge or Callout can switch hue with one
+     data attribute. `solid` for emphasis, `subtle` + `text` for the common
+     inline case (a conflict warning in the planner, an overdue balance in the
+     debtor list). */
+  --success-solid: light-dark(var(--green-600), var(--green-600));
+  --success-solid-hover: light-dark(var(--green-700), var(--green-700));
+  --success-subtle: light-dark(var(--green-100), var(--green-900));
+  --success-subtle-hover: light-dark(var(--green-200), var(--green-850));
+  --success-border: light-dark(var(--green-300), var(--green-800));
+  --success-text: light-dark(var(--green-800), var(--green-300));
+
+  --warning-solid: light-dark(var(--amber-600), var(--amber-600));
+  --warning-solid-hover: light-dark(var(--amber-700), var(--amber-700));
+  --warning-subtle: light-dark(var(--amber-100), var(--amber-900));
+  --warning-subtle-hover: light-dark(var(--amber-200), var(--amber-850));
+  --warning-border: light-dark(var(--amber-300), var(--amber-800));
+  --warning-text: light-dark(var(--amber-800), var(--amber-300));
+
+  --danger-solid: light-dark(var(--red-600), var(--red-600));
+  --danger-solid-hover: light-dark(var(--red-700), var(--red-700));
+  --danger-subtle: light-dark(var(--red-100), var(--red-900));
+  --danger-subtle-hover: light-dark(var(--red-200), var(--red-850));
+  --danger-border: light-dark(var(--red-300), var(--red-800));
+  --danger-text: light-dark(var(--red-800), var(--red-300));
+
+  --info-solid: light-dark(var(--blue-600), var(--blue-600));
+  --info-solid-hover: light-dark(var(--blue-700), var(--blue-700));
+  --info-subtle: light-dark(var(--blue-100), var(--blue-900));
+  --info-subtle-hover: light-dark(var(--blue-200), var(--blue-850));
+  --info-border: light-dark(var(--blue-300), var(--blue-800));
+  --info-text: light-dark(var(--blue-800), var(--blue-300));
+
+  /* ── Focus ─────────────────────────────────────────────────────────────── */
+  /* Use as `outline: var(--focus-ring); outline-offset: var(--focus-ring-offset)`
+     on `:focus-visible` only — never on `:focus`, which also fires on click. */
+  --focus-ring-color: light-dark(var(--indigo-600), var(--indigo-400));
+  --focus-ring-width: var(--border-width-thick);
+  --focus-ring-offset: 2px;
+  --focus-ring: var(--focus-ring-width) solid var(--focus-ring-color);
+
+  /* ── Form controls ─────────────────────────────────────────────────────── */
+  /* A field is recessed relative to whatever panel holds it, so it reads as
+     enterable in both schemes. */
+  --field-surface: light-dark(var(--neutral-0), var(--neutral-975));
+  --field-surface-hover: light-dark(var(--neutral-0), var(--neutral-950));
+  --field-surface-disabled: light-dark(var(--neutral-100), var(--neutral-900));
+
+  /* Steps chosen to clear 3:1 against the surface behind them — a field
+     boundary is a meaningful UI element, not decoration. */
+  --field-border: light-dark(var(--neutral-500), var(--neutral-600));
+  --field-border-hover: light-dark(var(--neutral-600), var(--neutral-500));
+  --field-border-focus: var(--focus-ring-color);
+  --field-border-invalid: light-dark(var(--red-600), var(--red-600));
+
+  --field-text: var(--text-primary);
+  --field-placeholder: var(--text-placeholder);
+  --field-label: var(--text-secondary);
+  --field-hint: var(--text-muted);
+  --field-error: var(--danger-text);
+
+  /* ── Elevation ─────────────────────────────────────────────────────────── */
+  /*
+   * Dark shadows are tighter and far stronger; pair them with the rising
+   * `--surface-*` steps, which do half the work in dark mode.
+   *
+   * `light-dark()` takes exactly two arguments, so a multi-layer shadow cannot
+   * be written as one call — the commas between layers would read as extra
+   * arguments. Each layer is therefore its own `light-dark()`, composed into
+   * the public token. The `--_`-prefixed halves are private: use `--shadow-*`.
+   */
+  --_shadow-key-xs: light-dark(0 1px 2px oklch(17% 0.007 285 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.5));
+  --_shadow-key-sm: light-dark(0 1px 3px oklch(17% 0.007 285 / 0.08), 0 1px 3px oklch(0% 0 0 / 0.6));
+  --_shadow-fill-sm: light-dark(0 1px 2px oklch(17% 0.007 285 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.4));
+  --_shadow-key-md: light-dark(
+    0 4px 12px -2px oklch(17% 0.007 285 / 0.1),
+    0 4px 12px -2px oklch(0% 0 0 / 0.65)
+  );
+  --_shadow-fill-md: light-dark(
+    0 2px 4px -2px oklch(17% 0.007 285 / 0.06),
+    0 2px 4px -2px oklch(0% 0 0 / 0.5)
+  );
+  --_shadow-key-lg: light-dark(
+    0 12px 24px -6px oklch(17% 0.007 285 / 0.12),
+    0 12px 24px -6px oklch(0% 0 0 / 0.7)
+  );
+  --_shadow-fill-lg: light-dark(
+    0 4px 8px -4px oklch(17% 0.007 285 / 0.08),
+    0 4px 8px -4px oklch(0% 0 0 / 0.55)
+  );
+  --_shadow-key-xl: light-dark(
+    0 24px 48px -12px oklch(17% 0.007 285 / 0.18),
+    0 24px 48px -12px oklch(0% 0 0 / 0.8)
+  );
+
+  --shadow-xs: var(--_shadow-key-xs);
+  --shadow-sm: var(--_shadow-key-sm), var(--_shadow-fill-sm);
+  --shadow-md: var(--_shadow-key-md), var(--_shadow-fill-md);
+  --shadow-lg: var(--_shadow-key-lg), var(--_shadow-fill-lg);
+  --shadow-xl: var(--_shadow-key-xl);
+
+  /* ── Layering ──────────────────────────────────────────────────────────── */
+  /*
+   * The whole app's z-index vocabulary. A component gets one of these or none;
+   * a raw `z-index: 9999` anywhere is a bug.
+   *
+   * Gaps of 100 leave room for local stacking inside a band. Prefer
+   * `isolation: isolate` on a component root so its children compete only with
+   * each other and never need a token at all.
+   *
+   * Popovers sit ABOVE modals on purpose: a select or date picker opened
+   * inside a dialog has to render over it, and Reka UI portals both to the
+   * body where document order will not save you.
+   */
+  --layer-base: 0;
+  --layer-raised: 10; /* cards lifting on hover, sticky table columns */
+  --layer-sticky: 100; /* sticky headers, the app shell's top bar */
+  --layer-dropdown: 200; /* menus anchored to in-page triggers */
+  --layer-scrim: 300; /* modal backdrop */
+  --layer-modal: 400; /* dialogs, drawers */
+  --layer-popover: 500; /* select/combobox/date picker — above dialogs */
+  --layer-toast: 600;
+  --layer-tooltip: 700; /* always last */
+
+  /* ── Motion ────────────────────────────────────────────────────────────── */
+  /* Named by intent so the reduced-motion override below reaches everything.
+     Prefer these over the raw `--duration-*` primitives. */
+  --transition-instant: var(--duration-2xs); /* colour on hover, focus rings */
+  --transition-quick: var(--duration-xs); /* small state changes */
+  --transition-base: var(--duration-sm); /* the default */
+  --transition-enter: var(--duration-md); /* popovers, toasts appearing */
+  --transition-exit: var(--duration-xs); /* leaving is faster than arriving */
+  --transition-slow: var(--duration-lg); /* drawers, page-level movement */
+
+  --easing-standard: var(--ease-in-out);
+  --easing-enter: var(--ease-out); /* decelerate into place */
+  --easing-exit: var(--ease-in); /* accelerate away */
+  --easing-emphasized: var(--ease-emphasized);
+
+  /* ── Layout intents ────────────────────────────────────────────────────── */
+  /* The only spacing aliases that exist. Everything else uses `--space-*`
+     directly — see the boundary rule in `primitives.css`. These earn names
+     because they must stay consistent across unrelated features. */
+  --gutter-page: clamp(var(--space-md), 4vw, var(--space-2xl));
+  --gap-stack: var(--space-md); /* between blocks in a vertical stack */
+  --gap-cluster: var(--space-xs); /* between items on one line */
+  --gap-section: var(--space-2xl); /* between major page sections */
+  --padding-card: var(--space-lg);
+  --padding-control-inline: var(--space-sm);
+  --padding-control-block: var(--space-xs);
+  --padding-cell: var(--space-sm); /* table cells */
+
+  /* Radius intents — keeps corner language consistent across components. */
+  --radius-control: var(--radius-md); /* buttons, inputs, badges */
+  --radius-card: var(--radius-lg);
+  --radius-overlay: var(--radius-xl); /* dialogs, popovers */
+  --radius-pill: var(--radius-full);
+}
+
+/*
+ * One override, applied at the token level, so honouring the preference is the
+ * default rather than something each animation has to remember. Durations
+ * collapse to ~0 while still firing `transitionend`, which keeps any logic
+ * waiting on it working.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-instant: 1ms;
+    --transition-quick: 1ms;
+    --transition-base: 1ms;
+    --transition-enter: 1ms;
+    --transition-exit: 1ms;
+    --transition-slow: 1ms;
+  }
+}

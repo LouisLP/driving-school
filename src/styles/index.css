@@ -1,0 +1,14 @@
+/**
+ * The global stylesheet entry point. Imported once, from `main.ts`.
+ *
+ * Only the reset and the token layer live here so far. The cascade-layer
+ * architecture for base/layout/component/utility styles is settled by the app
+ * shell ticket; this file declares the order those layers will take so that
+ * nothing added later has to move the reset.
+ */
+
+@layer reset, tokens, base, layout, components, utilities;
+
+@import url("./reset.css") layer(reset);
+@import url("./tokens/primitives.css") layer(tokens);
+@import url("./tokens/semantic.css") layer(tokens);
