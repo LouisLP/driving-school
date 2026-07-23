@@ -1,0 +1,7 @@
+{
+  "title": "Dashboard",
+  "widgets": {
+    "upcomingLessons": "Upcoming lessons",
+    "openInvoices": "Open invoices"
+  }
+}

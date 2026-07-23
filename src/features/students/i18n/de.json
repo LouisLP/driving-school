@@ -1,0 +1,13 @@
+{
+  "title": "Fahrschüler",
+  "list": {
+    "title": "Alle Fahrschüler",
+    "empty": "Noch keine Fahrschüler",
+    "count": "{count} Fahrschüler | {count} Fahrschüler"
+  },
+  "fields": {
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "licenceClass": "Führerscheinklasse"
+  }
+}
