@@ -5,6 +5,7 @@
   },
   "actions": {
     "cancel": "Cancel",
+    "close": "Close",
     "delete": "Delete",
     "retry": "Try again",
     "save": "Save",
@@ -18,6 +19,14 @@
     "network": "Could not reach the server",
     "notFound": "Not found",
     "validation": "Please check the highlighted fields"
+  },
+  "form": {
+    "required": "required",
+    "optional": "Optional",
+    "discardTitle": "Discard changes?",
+    "discardBody": "This form has changes that have not been saved. Closing it will lose them.",
+    "discardConfirm": "Discard changes",
+    "keepEditing": "Keep editing"
   },
   "locale": {
     "label": "Language",
@@ -39,19 +48,38 @@
     "description": "That address does not match anything in the back office.",
     "action": "Back to the dashboard"
   },
+  "pagination": {
+    "label": "Pages",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {page}",
+    "morePages": "More pages"
+  },
   "search": {
     "placeholder": "Search students, instructors, vehicles…"
+  },
+  "select": {
+    "placeholder": "Select…"
   },
   "states": {
     "empty": "Nothing here yet",
     "error": "Something went wrong",
     "loading": "Loading…"
   },
+  "table": {
+    "sortBy": "Sort by {column}",
+    "sortedAscending": "sorted ascending",
+    "sortedDescending": "sorted descending"
+  },
   "theme": {
     "label": "Appearance",
     "system": "System",
     "light": "Light",
     "dark": "Dark"
+  },
+  "toast": {
+    "label": "Notifications",
+    "close": "Dismiss"
   },
   "validation": {
     "dateInFuture": "Must not be in the future",

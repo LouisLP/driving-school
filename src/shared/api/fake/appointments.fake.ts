@@ -8,9 +8,11 @@ import type {
   Appointment,
   AppointmentId,
   Enrolment,
+  EnrolmentId,
   ExamAppointment,
   Instructor,
   InstructorId,
+  StudentId,
   TheoryAppointment,
   Vehicle,
   VehicleId,
@@ -53,6 +55,11 @@ export function createAppointmentRepository(ctx: FakeContext): AppointmentReposi
       throw ApiError.notFound('instructor', id)
 
     return instructor
+  }
+
+  /** A student is not on an appointment; their enrolments are. One hop, done at the seam. */
+  function enrolmentIdsOf(studentId: StudentId): readonly EnrolmentId[] {
+    return db.enrolments.filter(it => it.studentId === studentId).map(it => it.id)
   }
 
   function requireVehicle(id: VehicleId): Vehicle {
@@ -137,6 +144,8 @@ export function createAppointmentRepository(ctx: FakeContext): AppointmentReposi
         .filter(it => !query.vehicleIds || includesVehicle(query.vehicleIds, it))
         .filter(it => query.kind === undefined || it.kind === query.kind)
         .filter(it => query.enrolmentId === undefined || involves(it, query.enrolmentId))
+        .filter(it => query.studentId === undefined
+          || enrolmentIdsOf(query.studentId).some(enrolmentId => involves(it, enrolmentId)))
         .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
 
       return detach(matching)
