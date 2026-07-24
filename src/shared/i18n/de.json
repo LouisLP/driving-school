@@ -2,12 +2,29 @@
   "actions": {
     "cancel": "Abbrechen",
     "delete": "Löschen",
+    "retry": "Erneut versuchen",
     "save": "Speichern",
     "search": "Suchen"
+  },
+  "errors": {
+    "conflict": "Das ist derzeit nicht möglich",
+    "network": "Server nicht erreichbar",
+    "notFound": "Nicht gefunden",
+    "validation": "Bitte die markierten Felder prüfen"
   },
   "states": {
     "empty": "Noch nichts vorhanden",
     "error": "Etwas ist schiefgelaufen",
     "loading": "Wird geladen…"
+  },
+  "validation": {
+    "dateInFuture": "Darf nicht in der Zukunft liegen",
+    "invalidDate": "Kein gültiges Datum",
+    "invalidEmail": "Keine gültige E-Mail-Adresse",
+    "invalidPhone": "Keine gültige Telefonnummer",
+    "invalidPostalCode": "Keine gültige Postleitzahl",
+    "notPositive": "Muss größer als null sein",
+    "required": "Pflichtfeld",
+    "tooYoung": "Zu jung für die Ausbildung"
   }
 }
