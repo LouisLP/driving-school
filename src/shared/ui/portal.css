@@ -1,0 +1,337 @@
+/**
+ * PORTALLED CONTENT — the one place `<style scoped>` cannot reach, styled globally on purpose.
+ *
+ * Reka teleports a select's listbox, a dropdown's menu, a dialog's overlay and content, and the
+ * toast viewport to `document.body`. A scoped style compiles to `[data-v-xxxx]`, and that
+ * attribute is stamped on the component's own DOM — which the teleported node has left. Reka's
+ * documented `:deep()` workaround does not help either: `:deep()` still anchors on a scoped
+ * ancestor, and after the teleport there is none.
+ *
+ * So these parts are styled here, in one named file, rather than by scattering `:global()` blocks
+ * through a dozen SFCs or by wiring every wrapper up to a CSS-variable pass-through. The rule
+ * that keeps it honest:
+ *
+ *   **Only selectors for teleported nodes belong in this file, and every class it styles is
+ *   written by a component in this folder.**
+ *
+ * Nothing here is a general-purpose class. `.ui-dialog-content` means "the content element of
+ * `UiDialog.vue`" and nothing else may use it.
+ *
+ * It is imported by `styles/index.css` into the `utilities` layer, so an SFC's own unlayered
+ * scoped rules still win over it — the same cascade arrangement the rest of the app relies on.
+ */
+
+/* ── Overlay and dialog ──────────────────────────────────────────────────── */
+
+.ui-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-scrim);
+  background: var(--surface-scrim);
+  animation: ui-fade-in var(--transition-enter) var(--easing-enter);
+}
+
+.ui-dialog-content {
+  position: fixed;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  z-index: var(--layer-modal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  inline-size: calc(100vw - 2 * var(--space-lg));
+  max-block-size: calc(100dvh - 2 * var(--space-lg));
+  overflow-y: auto;
+  padding: var(--padding-card);
+  border-radius: var(--radius-overlay);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-xl);
+  translate: -50% -50%;
+  animation: ui-dialog-in var(--transition-enter) var(--easing-enter);
+}
+
+.ui-dialog-content[data-size="sm"] {
+  max-inline-size: var(--size-sm);
+}
+
+.ui-dialog-content[data-size="md"] {
+  max-inline-size: var(--size-lg);
+}
+
+.ui-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.ui-dialog-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+}
+
+.ui-dialog-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.ui-dialog-description {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.ui-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-block-size: 0;
+}
+
+.ui-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+}
+
+.ui-dialog-close {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.ui-dialog-close:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.ui-dialog-close:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Alert dialog buttons ────────────────────────────────────────────────── */
+
+.ui-alert-cancel,
+.ui-alert-confirm {
+  padding: var(--padding-control-block) var(--space-sm);
+  border: var(--border-width-hairline) solid var(--border-default);
+  border-radius: var(--radius-control);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+.ui-alert-cancel:hover {
+  background: var(--surface-hover);
+}
+
+.ui-alert-confirm[data-tone="danger"] {
+  border-color: transparent;
+  background: var(--danger-solid);
+  color: var(--text-on-solid);
+}
+
+.ui-alert-confirm[data-tone="danger"]:hover:not(:disabled) {
+  background: var(--danger-solid-hover);
+}
+
+.ui-alert-confirm:disabled {
+  background: var(--surface-disabled);
+  border-color: var(--border-subtle);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.ui-alert-cancel:focus-visible,
+.ui-alert-confirm:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Popper surfaces: select and dropdown menu ───────────────────────────── */
+
+/*
+ * Above `--layer-modal` on purpose: a select opened inside a dialog has to render over it, and
+ * both are portalled to the body where document order will not save you.
+ */
+.ui-select-content,
+.ui-menu-content {
+  z-index: var(--layer-popover);
+  overflow: hidden;
+  min-inline-size: var(--reka-select-trigger-width, 10rem);
+  max-block-size: var(--reka-select-content-available-height, 20rem);
+  padding: var(--space-3xs);
+  border: var(--border-width-hairline) solid var(--border-default);
+  border-radius: var(--radius-control);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-lg);
+  animation: ui-fade-in var(--transition-enter) var(--easing-enter);
+}
+
+.ui-select-viewport {
+  overflow-y: auto;
+}
+
+.ui-select-item,
+.ui-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Reka moves a `data-highlighted` marker with the pointer AND the keyboard, so hover and arrow
+   keys light the same row — which `:hover` alone cannot do. */
+.ui-select-item[data-highlighted],
+.ui-menu-item[data-highlighted] {
+  background: var(--surface-hover);
+  outline: none;
+}
+
+.ui-select-item[data-state="checked"] {
+  color: var(--text-accent);
+  font-weight: var(--weight-medium);
+}
+
+.ui-select-item[data-disabled],
+.ui-menu-item[data-disabled] {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.ui-select-item__indicator {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1em;
+}
+
+/* The tick's column is reserved whether or not it is filled, so rows do not shift on selection. */
+.ui-select-item:not([data-state="checked"]) .ui-select-item__indicator {
+  visibility: hidden;
+}
+
+.ui-menu-item[data-destructive] {
+  color: var(--danger-text);
+}
+
+.ui-menu-separator {
+  block-size: var(--border-width-hairline);
+  margin: var(--space-3xs) 0;
+  background: var(--border-subtle);
+}
+
+/* ── Toasts ──────────────────────────────────────────────────────────────── */
+
+.ui-toast-viewport {
+  position: fixed;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  z-index: var(--layer-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  inline-size: min(24rem, 100vw - var(--space-lg));
+  margin: 0;
+  padding: var(--space-lg);
+  list-style: none;
+  outline: none;
+}
+
+.ui-toast {
+  --_accent: var(--border-strong);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: var(--border-width-hairline) solid var(--border-subtle);
+  border-inline-start: var(--space-3xs) solid var(--_accent);
+  border-radius: var(--radius-card);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-lg);
+  animation: ui-toast-in var(--transition-enter) var(--easing-enter);
+}
+
+.ui-toast[data-tone="success"] {
+  --_accent: var(--success-solid);
+}
+
+.ui-toast[data-tone="danger"] {
+  --_accent: var(--danger-solid);
+}
+
+.ui-toast[data-swipe="move"] {
+  translate: var(--reka-toast-swipe-move-x) 0;
+}
+
+.ui-toast[data-swipe="cancel"] {
+  translate: 0;
+  transition: translate var(--transition-quick) var(--easing-standard);
+}
+
+.ui-toast__message {
+  font-size: var(--text-sm);
+}
+
+.ui-toast__close {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.ui-toast__close:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.ui-toast__close:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ── Entrances ───────────────────────────────────────────────────────────── */
+
+/* Durations come from the motion tokens, so `prefers-reduced-motion` already collapses them. */
+
+@keyframes ui-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes ui-dialog-in {
+  from {
+    opacity: 0;
+    translate: -50% -46%;
+  }
+}
+
+@keyframes ui-toast-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--space-md);
+  }
+}

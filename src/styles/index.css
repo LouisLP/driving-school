@@ -33,3 +33,12 @@
 @import url("./tokens/semantic.css") layer(tokens);
 @import url("./base.css") layer(base);
 @import url("./utilities.css") layer(utilities);
+
+/*
+ * The one exception to "nothing global below utilities", and it is an exception to WHERE a
+ * component's styles may live rather than to the cascade order. Reka teleports a select's
+ * listbox, a dialog and the toast viewport to `document.body`, which a scoped style cannot reach —
+ * so those parts are styled globally, on purpose, in one named file that only `shared/ui` writes
+ * selectors for. See the header of `portal.css`.
+ */
+@import url("../shared/ui/portal.css") layer(utilities);
