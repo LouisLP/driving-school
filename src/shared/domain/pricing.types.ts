@@ -10,7 +10,8 @@ import type { IsoDateTime } from './time.types'
  * price that can drift out of step with the first.
  *
  * Lives on the `LicenceClassOffering`: what a class costs is school configuration in exactly the
- * way its minimum lesson counts are, and both are edited on the same screen.
+ * way its `requirements` are, and both are edited on the same screen. Unlike the requirements it is
+ * frozen onto an enrolment — see `AgreedPrices` and `docs/training-model.md`.
  */
 export interface PriceList {
   /** The one-off fee that covers enrolment paperwork and the theory course. Grundbetrag. */

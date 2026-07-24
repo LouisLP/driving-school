@@ -152,8 +152,12 @@ A closed union of official EU codes (`AM`, `A1`, `A2`, `A`, `B`, `BE`, `C1`, `C`
 exhaustiveness checking and typed i18n keys.
 
 What the school *does* with them is configuration: `LicenceClassOffering` records whether a class
-is currently taught, the minimum training it requires, and its `prices`. Editing an offering is a
-school setting; inventing a licence class is not something a driving school can do.
+is currently taught, its `requirements` and its `prices`. Editing an offering is a school setting;
+inventing a licence class is not something a driving school can do.
+
+The requirements — how many practical units, mandated special drives and theory lessons a class
+demands — and how exam readiness is computed from them are in
+[docs/training-model.md](./training-model.md).
 
 ## Conventions these types follow
 
@@ -172,5 +176,6 @@ school setting; inventing a licence class is not something a driving school can 
 - **Conflict detection** — the full rule set and how conflicts are surfaced in the planner. Only
   the data the rules read is fixed here.
 - **Instructor availability & opening hours** — the shape of working hours, absences and holidays.
-- **Progress requirements** — how many lessons and special drives each licence class demands, and
-  how "ready for the exam" is computed.
+
+Progress requirements used to be on that list; they are settled in
+[docs/training-model.md](./training-model.md).

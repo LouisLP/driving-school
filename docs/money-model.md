@@ -73,7 +73,7 @@ product that can drift out of step with the first. `chargeableUnits` rounds up a
 less than one — a lesson cut short is still a lesson the instructor turned up for.
 
 Prices sit on the offering rather than in a separate entity because what a class costs is school
-configuration in exactly the way its minimum lesson counts are. One row per licence class, one
+configuration in exactly the way its `requirements` are. One row per licence class, one
 screen, one repository — a parallel `PriceListRepository` keyed by the same value would have been
 a second config collection to keep aligned with the first.
 
@@ -100,6 +100,11 @@ five numbers per enrolment is not a storage problem.
 
 The seed demonstrates the property rather than describing it: the school raised its prices on
 1 January 2025, and Tim's 2024 enrolment still bills at 2024 prices.
+
+Note that the offering's other configuration, its `requirements`, is deliberately **not** frozen
+this way: a price is a promise to the student, a training requirement is a floor under the school,
+and only one of those may be honoured at last year's value. See
+[docs/training-model.md](./training-model.md).
 
 ## From a completed appointment to money
 

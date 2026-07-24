@@ -1,5 +1,6 @@
 import type { LICENCE_CLASSES } from './licence-class.constants'
 import type { PriceList } from './pricing.types'
+import type { TrainingRequirements } from './training.types'
 
 /** An EU driving licence category, by its official code. */
 export type LicenceClass = typeof LICENCE_CLASSES[number]
@@ -14,8 +15,11 @@ export interface LicenceClassOffering {
    * running enrolments keep the copy they took at `agreedPrices`.
    */
   prices: PriceList
-  /** Minimum standard practical appointments before the student may sit the practical exam. */
-  minimumPracticalAppointments: number
-  /** Minimum theory appointments before the student may sit the theory exam. */
-  minimumTheoryAppointments: number
+  /**
+   * How much training this class demands. Seeded from `LEGAL_TRAINING_MINIMUMS`, then the school's.
+   *
+   * Unlike `prices` it is **not** copied onto an enrolment: exam readiness is measured against
+   * today's rules, because a school may not certify a student against last year's ones.
+   */
+  requirements: TrainingRequirements
 }

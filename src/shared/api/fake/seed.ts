@@ -32,6 +32,7 @@ import {
   billableItemFor,
   DEFAULT_PAYMENT_TERM_DAYS,
   fromEuros,
+  LEGAL_TRAINING_MINIMUMS,
   LICENCE_CLASSES,
   multiplyMoney,
   toIsoDateTime,
@@ -257,24 +258,30 @@ const ENROLMENTS: readonly Enrolment[] = [
 ]
 
 function buildOfferings(): LicenceClassOffering[] {
-  const taught: Partial<Record<string, [practical: number, theory: number]>> = {
-    B: [12, 14],
-    BE: [5, 0],
-    A1: [12, 14],
-    A2: [12, 14],
-    A: [12, 14],
-    C: [10, 20],
-    CE: [10, 12],
+  /**
+   * The school's own standard-lesson policy, in 45-minute units. The mandated counts come from
+   * `LEGAL_TRAINING_MINIMUMS` — this is the only number a school actually chooses.
+   */
+  const housePolicyUnits: Partial<Record<LicenceClass, number>> = {
+    B: 12,
+    BE: 5,
+    A1: 12,
+    A2: 12,
+    A: 12,
+    C: 10,
+    CE: 10,
   }
 
   return LICENCE_CLASSES.map((licenceClass) => {
-    const minimums = taught[licenceClass]
+    const standardPracticalUnits = housePolicyUnits[licenceClass]
 
     return {
       licenceClass,
-      isOffered: minimums !== undefined,
-      minimumPracticalAppointments: minimums?.[0] ?? 0,
-      minimumTheoryAppointments: minimums?.[1] ?? 0,
+      isOffered: standardPracticalUnits !== undefined,
+      requirements: {
+        ...LEGAL_TRAINING_MINIMUMS[licenceClass],
+        standardPracticalUnits: standardPracticalUnits ?? 0,
+      },
       prices: priceList(PRICES[licenceClass] ?? NOT_OFFERED),
     }
   })

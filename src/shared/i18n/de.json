@@ -59,6 +59,7 @@
     "invalidEmail": "Keine gültige E-Mail-Adresse",
     "invalidPhone": "Keine gültige Telefonnummer",
     "invalidPostalCode": "Keine gültige Postleitzahl",
+    "negative": "Darf nicht negativ sein",
     "notPositive": "Muss größer als null sein",
     "required": "Pflichtfeld",
     "tooYoung": "Zu jung für die Ausbildung"

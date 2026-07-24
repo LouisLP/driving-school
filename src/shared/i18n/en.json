@@ -59,6 +59,7 @@
     "invalidEmail": "Not a valid email address",
     "invalidPhone": "Not a valid phone number",
     "invalidPostalCode": "Not a valid postal code",
+    "negative": "Must not be negative",
     "notPositive": "Must be greater than zero",
     "required": "Required",
     "tooYoung": "Too young to train here"

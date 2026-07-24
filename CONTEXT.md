@@ -6,7 +6,8 @@ speak the same language and share the same entities.
 
 The relationships, cardinalities and lifecycles behind these terms are in
 [docs/domain-model.md](./docs/domain-model.md); the money ones in
-[docs/money-model.md](./docs/money-model.md). This file is the glossary and nothing else.
+[docs/money-model.md](./docs/money-model.md), the training ones in
+[docs/training-model.md](./docs/training-model.md). This file is the glossary and nothing else.
 
 ## People
 
@@ -44,6 +45,22 @@ One student's training toward one licence class, from first enquiry to pass or w
 unit of progress and the unit of billing: appointments and invoices attach to an enrolment, never
 to a student directly. A student pursuing `B` and then `A` has two enrolments.
 _Avoid_: Registration, signup, course, contract, training
+
+**Training Requirements**:
+How much training one licence class demands before its exams may be sat — standard practical units,
+the mandated special drives per type, and theory lessons by scope. Configuration on the licence
+class offering, seeded from the legal minimums, and read live rather than frozen onto an enrolment.
+_Avoid_: Minimums, curriculum, syllabus, quota, lesson plan
+
+**Training Record**:
+What one enrolment has actually completed, counted from its appointments in the same units its
+requirements are stated in. Derived, never stored.
+_Avoid_: Progress (as the type), history, transcript, tally
+
+**Exam Readiness**:
+Whether an enrolment may sit each of its two exams, as a per-requirement breakdown rather than a
+verdict. Advisory: it warns, it never blocks a booking.
+_Avoid_: Eligibility, completion, qualified, exam clearance
 
 ## Scheduling
 

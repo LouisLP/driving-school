@@ -5,7 +5,8 @@ What the Students feature contains, screen by screen and file by file.
 Settled by [Students vertical slice spec (#8)](https://github.com/LouisLP/driving-school/issues/8).
 Vocabulary lives in [CONTEXT.md](../CONTEXT.md); the entities in
 [docs/domain-model.md](./domain-model.md), the money in [docs/money-model.md](./money-model.md),
-the seam in [docs/api-seam.md](./api-seam.md).
+the training requirements in [docs/training-model.md](./training-model.md), the seam in
+[docs/api-seam.md](./api-seam.md).
 
 **This is the reference implementation.** Instructors, Vehicles, Locations, Invoices and Debtors
 are the same screen with different nouns, and they will be built by copying what is described
@@ -75,16 +76,20 @@ three trainings.
 
 ### 3. Progress is derived, and adds no configuration
 
-The enrolment card shows progress against the two minimums the offering already carries
-(`minimumPracticalAppointments`, `minimumTheoryAppointments`). Special drives — overland, autobahn,
-night — are **counted and displayed but not benchmarked**, because nothing in the model says how
-many are required.
+The enrolment card shows progress against the requirements the offering carries, and derives all of
+them — nothing about a student's progress is stored.
 
-The map lists *Progress & exam readiness* as unspecified, and this slice deliberately does not
-settle it: adding mandated special-drive counts to `LicenceClassOffering` and a
-`deriveExamReadiness` rule is a domain ticket, and it would arrive here disguised as a UI ticket.
-What the card can say honestly today is *"14 of 12 standard lessons, 3 overland, 2 autobahn, 0
-night"* — and not *"ready for the test"*. Filed as a follow-up.
+> **Amended by [#21](https://github.com/LouisLP/driving-school/issues/21).** This decision
+> originally left special drives *counted but not benchmarked*, because nothing in the model said
+> how many were required, and the card was allowed to say "3 overland, 2 autobahn, 0 night" but not
+> "ready for the test". That is now settled in
+> [docs/training-model.md](./training-model.md): the offering carries `requirements`
+> (`standardPracticalUnits`, `specialDriveUnits` per type, theory split by scope) in place of the
+> old `minimumPracticalAppointments` / `minimumTheoryAppointments`, and
+> `deriveExamReadiness` returns a per-requirement breakdown. So the card **does** benchmark the
+> special drives, and it may claim readiness — advisorily, since readiness blocks nothing. Every
+> other word of this decision stands; the shape of the read model is unchanged apart from the
+> fields listed under *Seam additions*.
 
 ### 4. Create and edit are one dialog
 
@@ -276,8 +281,9 @@ pluralised, and it reports matches across all pages, not the length of the curre
 │ ┌─────────────────────────────────────────────────────────────────────┐ │
 │ │ [B]  ●Active            started 12.02.2026            [ Status ▾ ]  │ │
 │ │ Standard lessons   ████████████░░░  12 / 12                         │ │
-│ │ Theory             ██████░░░░░░░░░   7 / 14                         │ │
-│ │ Special drives     3 overland · 2 autobahn · 0 night                │ │
+│ │ Theory             ██████░░░░░░░░░   7 / 12 basic · 0 / 2 class     │ │
+│ │ Special drives     3 / 5 overland · 2 / 4 autobahn · 0 / 3 night    │ │
+│ │ Readiness          theory 5 short · practical not ready             │ │
 │ │ Exams              theory passed · practical not sat                │ │
 │ │ Balance            € 340,00 outstanding · € 90,00 unbilled          │ │
 │ │ Next               Thu 30 Jul, 14:00 · practical · M. Keller        │ │
@@ -333,9 +339,10 @@ Ordered open first (`enquiring`, `active`, `paused`), then closed by `closedAt` 
 | Licence class | `enrolment.licenceClass` | Large, it is the card's identity. |
 | Status badge | `enrolment.status` | `active`/`passed` → success, `paused` → warning, `withdrawn` → neutral, `enquiring` → info. |
 | Dates | `enquiredAt` / `startedAt` / `closedAt` | One line, whichever are set. |
-| Standard lessons | `progress.completedStandardUnits` vs `minimumPracticalAppointments` | `UiProgressBar`, capped visually at 100 % but labelled with the true count — `14 / 12` is information, a bar at 117 % is not. |
-| Theory | `progress.attendedTheoryAppointments` vs `minimumTheoryAppointments` | Same. |
-| Special drives | `progress.specialDrives` | Counts per type. No bar — nothing to measure against yet (decision 3). |
+| Standard lessons | the `standardPractical` line of `progress.readiness.practical` | `UiProgressBar`, capped visually at 100 % but labelled with the true count — `14 / 12` is information, a bar at 117 % is not. |
+| Theory | the `basicTheory` and `classSpecificTheory` lines of `progress.readiness.theory` | Two bars, since the two courses complete independently (#21). |
+| Special drives | the three drive lines of `progress.readiness.practical` | One small bar per type — `3 / 5 overland`. Never summed: the three are different skills (#21). |
+| Readiness | `progress.readiness[…].isMet` | One line per exam: *ready* or the unmet requirements, from `unmetRequirements`. Advisory — it never disables anything. |
 | Exams | `progress.exams` | Kind, date, result; `not sat` when none. |
 | Balance | matching `EnrolmentBalance` from `perEnrolment` | Outstanding and uninvoiced. |
 | Next appointment | `summary.nextAppointment` | Date, kind, instructor. `—` when nothing is booked. |
@@ -434,14 +441,13 @@ per student page, which is the N+1 the seam rule from #3 exists to prevent.
 // src/shared/api/contracts/enrolments.contract.ts
 
 export interface EnrolmentProgress {
-  /** Completed standard practical appointments, in 45-minute units. */
-  completedStandardUnits: number
-  /** From the offering, so the card measures against the school's own configuration. */
-  minimumPracticalAppointments: number
-  attendedTheoryAppointments: number
-  minimumTheoryAppointments: number
-  /** Counted, not benchmarked — the model does not say how many are required. See #8. */
-  specialDrives: Record<Exclude<PracticalDriveType, 'standard'>, number>
+  /** What this enrolment has completed, from `deriveTrainingRecord`. */
+  record: TrainingRecord
+  /**
+   * The record measured against today's offering, from `deriveExamReadiness` (#21). Carries the
+   * requirement counts, so the card draws every bar from here and re-derives nothing.
+   */
+  readiness: ExamReadiness
   exams: readonly { examKind: 'theory' | 'practical', satAt: IsoDateTime, result: ExamResult | null }[]
   /** Planned appointments not yet sat. What "12 booked, 7 driven" is read from. */
   plannedAppointments: number
@@ -632,7 +638,8 @@ students.list.searchPlaceholder / filters.standing / filters.licenceClass /
   filters.any / filters.clear / empty.none / empty.noMatch / columns.actions
 students.detail.identity / account / enrolments / noEnrolments /
   outstanding / overdue / uninvoiced / viewInFinances
-students.enrolment.progress.standard / theory / specialDrives / exams /
+students.enrolment.progress.standard / theoryBasic / theoryClassSpecific /
+  specialDrives / readiness.ready / readiness.short / exams /
   next / recent / noneBooked / notSat / status.*
 students.form.createTitle / editTitle / discardTitle / discardBody /
   addressLegend / notesHint
@@ -656,7 +663,7 @@ Per the map: only where logic lives. No component snapshots.
 | --- | --- |
 | `use-form.spec.ts` | Validate on submit, blur-then-live per field, dirty tracking, merging `ApiError.fieldErrors`, pending lockout. |
 | `use-list-query.spec.ts` | Query ↔ URL round trip, defaults stripped, page reset on filter change, debounce, `replace` vs `push`. |
-| `enrolment.utils.spec.ts` | `deriveEnrolmentProgress`: only `completed` counts, `noShow` and `cancelled` do not, special drives by type, theory counts `attended` only, exams with and without results. |
+| `enrolment.utils.spec.ts` | `deriveEnrolmentProgress`: the exam list and `plannedAppointments`. The counting and the readiness comparison are already covered by `training.utils.spec.ts` (#21); this file does not re-test them. |
 | `enrolments.fake.spec.ts` | The `summaries` join: right enrolments, next/recent ordering, N+1-free shape, unknown student rejects `notFound`. |
 | `use-student-list.spec.ts` | Filters map onto `StudentQuery`; class filter offers only offered classes. |
 
@@ -668,7 +675,7 @@ Per the map: only where logic lives. No component snapshots.
 
 | Left out | Where it belongs |
 | --- | --- |
-| Exam readiness, mandated special-drive counts | Its own domain issue — see decision 3. |
+| Editing an offering's requirements | The offerings screen. Settled as a model by #21; this slice reads requirements, never writes them. |
 | Scheduling from the student record | Planner (#11). This slice reads appointments, never writes them. |
 | Recording payments, drafting invoices | Finances. Students links, Finances owns. |
 | Student documents, avatars, file upload | Nothing in the domain model has a file on it yet. |
@@ -680,9 +687,10 @@ Per the map: only where logic lives. No component snapshots.
 
 ## Follow-ups this raises
 
-1. **Progress & exam readiness** — mandated special-drive counts on the offering, and the rule
-   that turns an enrolment into "ready for the test". Blocks nothing here; the card is honest
-   without it.
+1. ~~**Progress & exam readiness**~~ — settled by
+   [#21](https://github.com/LouisLP/driving-school/issues/21) in
+   [docs/training-model.md](./training-model.md), before this slice was built. See the amendment on
+   decision 3.
 2. **`shared/ui` growth policy** — the next feature will want Combobox and Tabs. Worth writing
    down once whether a wrapper may be added speculatively (this slice says no).
 3. **#5's gap list is now partly wrong** — Valibot and TanStack Table were both ranked as gaps to
