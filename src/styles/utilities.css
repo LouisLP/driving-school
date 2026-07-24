@@ -1,0 +1,65 @@
+/**
+ * UTILITIES — the small layout vocabulary, and nothing else.
+ *
+ * This is not a utility framework. There is no `.mt-4`, no `.text-sm`, no colour classes: spacing
+ * and type inside a component are that component's business and live in its scoped style. What
+ * earns a global class is a LAYOUT PRIMITIVE — an arrangement that every feature repeats and that
+ * nobody should re-derive.
+ *
+ * Each one is tuned by a custom property rather than by a variant class, so a caller writes
+ * `class="stack" style="--stack-gap: var(--space-lg)"` (or sets `--stack-gap` from its own scoped
+ * CSS) instead of asking for `.stack-lg` to be invented.
+ *
+ * Rule of thumb: if adding a class here would need a second one next week for the same idea at a
+ * different size, it is a component, not a utility.
+ */
+
+/* Vertical rhythm. The single most-used layout in the app. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, var(--gap-stack));
+}
+
+/* Things on one line that wrap when they must — toolbars, chip rows, button groups. */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: var(--cluster-align, center);
+  gap: var(--cluster-gap, var(--gap-cluster));
+}
+
+/* A cluster that pushes its last child to the far end — a title with actions beside it. */
+.cluster--between {
+  justify-content: space-between;
+}
+
+/* Responsive columns with no media queries: as many as fit at `--grid-min` wide. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--grid-min, 16rem), 100%), 1fr));
+  gap: var(--grid-gap, var(--gap-stack));
+}
+
+/* Caps line length for prose. Never for tables or forms. */
+.measure {
+  max-inline-size: var(--measure-prose);
+}
+
+/* Available to assistive tech, invisible on screen. Used for skip links and icon-button labels. */
+.visually-hidden:not(:focus-visible) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Truncates one line. Needs a width constraint from its parent to do anything. */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

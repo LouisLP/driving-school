@@ -1,14 +1,35 @@
 /**
  * The global stylesheet entry point. Imported once, from `main.ts`.
  *
- * Only the reset and the token layer live here so far. The cascade-layer
- * architecture for base/layout/component/utility styles is settled by the app
- * shell ticket; this file declares the order those layers will take so that
- * nothing added later has to move the reset.
+ * ── The cascade architecture (settled by the app shell ticket, #7) ─────────
+ *
+ * Four global layers, and that is the whole global stylesheet. There is no
+ * `components` layer, because component CSS is not global: every component
+ * styles itself in its own `<style scoped>`.
+ *
+ * That is a deliberate use of a cascade quirk. Unlayered styles beat layered
+ * ones no matter the order, so an SFC's scoped rules always win over anything
+ * in this file — a component can use `.stack` and still override its gap
+ * locally, with no `!important` and no specificity games. The global layers
+ * order among themselves; the components sit above all of them.
+ *
+ * What that buys, read top-down:
+ *
+ *   reset      Comeau's reset. Removes browser opinions.
+ *   tokens     The two token tiers. Values only, no selectors beyond `:root`.
+ *   base       Our opinions on bare elements — body, headings, links, focus.
+ *   utilities  The small layout vocabulary (stack / cluster / grid).
+ *   (unlayered) Every SFC's scoped styles. Always win.
+ *
+ * The rule that keeps it honest: nothing global is added below `utilities`.
+ * A style that needs to beat a component is a design-system decision that
+ * belongs in a token, not in a more specific selector.
  */
 
-@layer reset, tokens, base, layout, components, utilities;
+@layer reset, tokens, base, utilities;
 
 @import url("./reset.css") layer(reset);
 @import url("./tokens/primitives.css") layer(tokens);
 @import url("./tokens/semantic.css") layer(tokens);
+@import url("./base.css") layer(base);
+@import url("./utilities.css") layer(utilities);

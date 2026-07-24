@@ -1,7 +1,15 @@
 {
   "title": "Dashboard",
+  "subtitle": "Where the school stands today.",
   "widgets": {
     "upcomingLessons": "Upcoming lessons",
     "openInvoices": "Open invoices"
-  }
+  },
+  "stats": {
+    "activeStudents": "Active students",
+    "lessonsToday": "Lessons today",
+    "openInvoices": "Open invoices",
+    "fleet": "Vehicles in service"
+  },
+  "recentStudents": "Recently registered"
 }

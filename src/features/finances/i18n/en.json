@@ -1,0 +1,11 @@
+{
+  "title": "Finances",
+  "subtitle": "What the school has billed, and what it is owed.",
+  "sections": {
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "priceLists": "Price lists",
+    "debtors": "Debtors"
+  },
+  "placeholder": "Specified after the students slice."
+}

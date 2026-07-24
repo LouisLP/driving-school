@@ -1,4 +1,8 @@
 {
+  "app": {
+    "name": "Driving School",
+    "tagline": "Back office"
+  },
   "actions": {
     "cancel": "Cancel",
     "delete": "Delete",
@@ -6,16 +10,48 @@
     "save": "Save",
     "search": "Search"
   },
+  "breadcrumb": {
+    "label": "Breadcrumb"
+  },
   "errors": {
     "conflict": "That is not possible right now",
     "network": "Could not reach the server",
     "notFound": "Not found",
     "validation": "Please check the highlighted fields"
   },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "nav": {
+    "label": "Sections",
+    "close": "Close navigation",
+    "open": "Open navigation",
+    "skipToContent": "Skip to content",
+    "groups": {
+      "administration": "Administration",
+      "daily": "Day to day"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "That address does not match anything in the back office.",
+    "action": "Back to the dashboard"
+  },
+  "search": {
+    "placeholder": "Search students, instructors, vehicles…"
+  },
   "states": {
     "empty": "Nothing here yet",
     "error": "Something went wrong",
     "loading": "Loading…"
+  },
+  "theme": {
+    "label": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
   },
   "validation": {
     "dateInFuture": "Must not be in the future",

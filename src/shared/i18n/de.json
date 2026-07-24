@@ -1,4 +1,8 @@
 {
+  "app": {
+    "name": "Fahrschule",
+    "tagline": "Verwaltung"
+  },
   "actions": {
     "cancel": "Abbrechen",
     "delete": "Löschen",
@@ -6,16 +10,48 @@
     "save": "Speichern",
     "search": "Suchen"
   },
+  "breadcrumb": {
+    "label": "Navigationspfad"
+  },
   "errors": {
     "conflict": "Das ist derzeit nicht möglich",
     "network": "Server nicht erreichbar",
     "notFound": "Nicht gefunden",
     "validation": "Bitte die markierten Felder prüfen"
   },
+  "locale": {
+    "label": "Sprache",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "nav": {
+    "label": "Bereiche",
+    "close": "Navigation schließen",
+    "open": "Navigation öffnen",
+    "skipToContent": "Zum Inhalt springen",
+    "groups": {
+      "administration": "Verwaltung",
+      "daily": "Tagesgeschäft"
+    }
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Zu dieser Adresse gibt es in der Verwaltung nichts.",
+    "action": "Zurück zur Übersicht"
+  },
+  "search": {
+    "placeholder": "Fahrschüler, Fahrlehrer, Fahrzeuge suchen…"
+  },
   "states": {
     "empty": "Noch nichts vorhanden",
     "error": "Etwas ist schiefgelaufen",
     "loading": "Wird geladen…"
+  },
+  "theme": {
+    "label": "Darstellung",
+    "system": "System",
+    "light": "Hell",
+    "dark": "Dunkel"
   },
   "validation": {
     "dateInFuture": "Darf nicht in der Zukunft liegen",

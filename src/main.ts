@@ -12,6 +12,7 @@ import {
   FAKE_API_CONTROLS_KEY,
   loadDatabase,
 } from './shared/api/fake'
+import { installShellVariantGuard } from './shared/shell/prototype/use-shell-variant'
 
 import './styles/index.css'
 
@@ -33,8 +34,13 @@ app.provide(API_KEY, api)
 
 // The latency/failure dials are dev scaffolding, so they travel under their own key and are not
 // provided in a production build.
-if (import.meta.env.DEV)
+if (import.meta.env.DEV) {
   app.provide(FAKE_API_CONTROLS_KEY, api.controls)
+
+  // PROTOTYPE (#7): keeps `?shell=` across navigation while the three shell variants are up for
+  // review. Goes when the variant is chosen.
+  installShellVariantGuard(router)
+}
 
 app.component('Icon', Icon)
 app.use(createPinia())

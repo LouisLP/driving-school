@@ -1,13 +1,31 @@
 {
   "title": "Students",
+  "subtitle": "Everyone the school trains, and where they stand.",
   "list": {
     "title": "All students",
     "empty": "No students yet",
     "count": "{count} student | {count} students"
   },
+  "detail": {
+    "title": "Student"
+  },
+  "actions": {
+    "create": "New student"
+  },
   "fields": {
     "firstName": "First name",
     "lastName": "Last name",
+    "name": "Name",
+    "contact": "Contact",
+    "dateOfBirth": "Date of birth",
+    "standing": "Standing",
+    "registeredAt": "Registered",
     "licenceClass": "Licence class"
+  },
+  "standing": {
+    "prospect": "Prospect",
+    "active": "Active",
+    "alumnus": "Alumnus",
+    "lapsed": "Lapsed"
   }
 }

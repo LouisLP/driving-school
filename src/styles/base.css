@@ -1,0 +1,75 @@
+/**
+ * BASE — element defaults.
+ *
+ * The reset removes browser opinions; this layer states ours. Bare elements only: no classes, no
+ * components. If a rule needs a class to be useful, it belongs in the component's own scoped style
+ * or in `utilities.css`.
+ */
+
+body {
+  min-height: 100dvh;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+
+  /* A data-dense back office reads better with lining, tabular-ish defaults. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-semibold);
+}
+
+h1 { font-size: var(--text-2xl); letter-spacing: var(--tracking-tight); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+h4, h5, h6 { font-size: var(--text-base); }
+
+a {
+  color: var(--text-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  transition: color var(--transition-instant) var(--easing-standard);
+}
+
+a:hover { color: var(--text-link-hover); }
+
+small { font-size: var(--text-sm); }
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+hr {
+  border: 0;
+  border-block-start: var(--border-width-hairline) solid var(--border-subtle);
+}
+
+::placeholder { color: var(--text-placeholder); }
+
+::selection {
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+}
+
+/*
+ * One focus style for the whole app. `:focus-visible` only — a mouse click on a button should not
+ * paint a ring. Anything that removes this owes a replacement.
+ */
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+:disabled {
+  cursor: not-allowed;
+  color: var(--text-disabled);
+}
+
+[hidden] { display: none !important; }

@@ -1,0 +1,19 @@
+{
+  "title": "Fahrschule",
+  "subtitle": "Die eigenen Betriebsmittel und Einstellungen der Fahrschule.",
+  "sections": {
+    "vehicles": "Fuhrpark",
+    "locations": "Standorte",
+    "licenceClasses": "Führerscheinklassen",
+    "profile": "Stammdaten"
+  },
+  "vehicles": {
+    "plate": "Kennzeichen",
+    "model": "Fahrzeug",
+    "transmission": "Getriebe",
+    "suitableFor": "Für Klassen",
+    "manual": "Schaltgetriebe",
+    "automatic": "Automatik"
+  },
+  "placeholder": "Wird nach dem Fahrschüler-Abschnitt spezifiziert."
+}

@@ -38,8 +38,15 @@ describe('merged messages', () => {
 
   it('namespaces every feature under its folder name, in every locale', () => {
     for (const locale of SUPPORTED_LOCALES) {
-      expect(Object.keys(messages[locale]).sort())
-        .toEqual(['dashboard', 'shared', 'students'])
+      expect(Object.keys(messages[locale]).sort()).toEqual([
+        'dashboard',
+        'finances',
+        'instructors',
+        'planner',
+        'school',
+        'shared',
+        'students',
+      ])
     }
   })
 
