@@ -4,8 +4,32 @@ Prototype for [Planner calendar UX (#11)](https://github.com/LouisLP/driving-sch
 Run it with `npm run dev` and open `/prototype/planner`; `←` / `→` or the floating bar switch
 variants (`?variant=A|B|C`).
 
-Everything here is a **proposal to react to**, not a decision already taken. The conflict rule set
-is the part that is meant to survive; the layout is meant to be argued with.
+## Decision
+
+**Variant C — overview + focused day + demand rail — wins.** All three panes earn their place: the
+week is the unit the school plans in, the day is where the work happens, and the queue of students
+who need hours is the thing the planner exists to empty.
+
+C's first pass was too loud, so it had a second one. The density rule now applied throughout:
+
+> **One fact per element by default; the rest one interaction away.**
+
+- Heatmap cells: a load bar, plus a dot when something is wrong. The appointment count moved to the
+  tooltip — twenty-one numbers in a grid is a table nobody reads.
+- Blocks: time and person. Vehicle, class and seat count appear only on blocks at least an hour
+  tall; the rest is in the tooltip and in the staging panel.
+- Conflicts: warnings are a corner mark, and only *blocking* ones get a ring. Outline everything
+  that warns and an ordinary week looks like an emergency.
+- Queue: one line per student — name, class, how many times they are already in the week.
+- Staging panel: what is wrong, in one line each. *Why the rule exists* sits behind a fold, which is
+  where it belongs by the second week of use.
+- The vehicle picker dropped below the queue, and the activity log to a single last-action line.
+
+The conflict rule set below is unchanged by the pick — it is what all three variants shared.
+A and B stay on this branch as the primary source; neither is being built.
+
+Everything else here is still a **proposal to react to**. The layout is settled; the details are
+meant to be argued with.
 
 ## The three variants
 
@@ -22,9 +46,10 @@ nothing is written back. Times are UTC throughout, matching the seed.
 | Drag to move | Yes, anywhere | No | Yes, into the staging rail |
 | Conflict stance | Optimistic: warnings land immediately with an undo, blocks refuse mid-drag | Preventive: pickers only offer valid instructors/vehicles, then confirm | Staged: a drop never commits; the rail shows the checklist and arms the button |
 
-Each variant's header comment states its bet in one paragraph. The interesting outcome is probably
-a mix — the week heatmap from C over the grid from A, with B's "free slots as rows" available as a
-side panel when someone rings up asking when Lena can next drive.
+Each variant's header comment states its bet in one paragraph. C won because it is the only one
+that keeps all three questions on screen at once — how loaded is the week, what is happening today,
+and who still needs booking. Worth stealing later: B's "free slots as rows", which is the right
+answer when someone rings up asking when Lena can next drive.
 
 ### What the variants agree on, and why
 
@@ -81,9 +106,9 @@ to each entry, and implemented by one pure function, `evaluateConflicts(candidat
   That is where the seeded Wednesday-14:00 vehicle clash comes from.
 - **Blocking is a client-side courtesy, not the enforcement.** The seam re-runs the blocking half on
   write (`schedule` already rejects with `conflict`). The client copy exists for feedback.
-- **Warnings demand a reason, not a checkbox.** B uses an acknowledgement plus a free-text reason,
-  C requires the reason before the button arms, A puts it in the popover. Whichever wins, the reason
-  lands on the appointment's `notes` — an override nobody can see afterwards is a silent one.
+- **Warnings demand a reason, not a checkbox.** In C the Book button stays unarmed until a reason is
+  typed, and the reason lands on the appointment's `notes` — an override nobody can see afterwards is
+  a silent one. (A used a popover, B a tick-box plus reason.)
 - **Prevention beats warning where possible.** B's pickers only offer instructors qualified for the
   student's class and vehicles suitable for it, so two of the blocking rules can never fire from
   that screen. The rules still exist — the API enforces them — but the UI stops asking the user to
@@ -102,9 +127,13 @@ to each entry, and implemented by one pure function, `evaluateConflicts(candidat
 - **Vehicle location is not modelled.** "Vehicle already out" is only detected as an overlap; a car
   finishing at the exam centre at 10:00 and starting a lesson at HQ at 10:15 raises nothing.
 
-## Open questions for whoever picks a variant
+## Still open, now that C is picked
 
-1. Is the day-with-resource-columns the default, or the week? A says day, B and C say week.
-2. Does the vehicle axis earn its toggle, or is a vehicle column set a separate "fleet" view?
-3. Is drag-to-book worth building at all, given B books everything from a form in fewer clicks?
-4. Should a move that only warns land immediately with an undo (A), or stage and wait (C)?
+1. C has no vehicle axis at all. Is a fleet view a separate screen, or a toggle on the day grid?
+2. B's narrowing pickers are strictly better than warning after the fact — should the staging panel
+   adopt them (offer only qualified instructors when you drop a student), or does that hide too much?
+3. Theory classes sit in the instructor's column like any other block. Does a class of twenty need
+   its own lane, or is one block with `n/capacity` enough?
+4. The rail lists open enrolments by how little they are booked this week. The real ordering wants
+   "hours still owed against the offering's minimum", which needs the enrolment progress read that
+   no issue owns yet.

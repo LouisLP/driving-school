@@ -13,10 +13,25 @@
  * Conflict stance: staged. A drop never commits — it stages the booking in the rail with the
  * rule set shown as a checklist, and the human presses the button. Blocking rules are unarmed
  * buttons; warnings arm after a reason is typed.
+ *
+ * ── Density (the picked variant, second pass) ──────────────────────────────
+ *
+ * Three panes can only carry three panes' worth of information if each one says the least it can.
+ * The rule applied throughout: **one fact per element by default, the rest one interaction away.**
+ *
+ * - Heatmap cells are a load bar and, when something is wrong, a dot. The count is in the
+ *   tooltip; twenty-one numbers across a grid is a table nobody reads.
+ * - A block shows the time and the person. The vehicle, class and seat count appear only when the
+ *   block is at least an hour tall; the full picture is in the tooltip and in the staging panel.
+ * - Warnings are a corner mark. Only *blocking* conflicts get a ring — outline every warned block
+ *   and an ordinary week looks like an emergency.
+ * - The queue is one line per student: name, class, and how often they are already in the week.
+ * - The staging panel states what is wrong; *why the rule exists* is behind a fold, which is where
+ *   it belongs by the second week of use.
  */
 
 import type { CandidateAppointment, Conflict } from './conflicts'
-import type { PlannerData } from './use-planner-data'
+import type { PlannerBlock, PlannerData } from './use-planner-data'
 import type { AppointmentId, EnrolmentId, InstructorId, VehicleId } from '@/shared/domain'
 import { computed, ref } from 'vue'
 import {
@@ -223,6 +238,17 @@ function heightOf(minutes: number): string {
 function time(minute: number): string {
   return `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`
 }
+
+/** Everything the block itself no longer says out loud. */
+function blockTooltip(block: PlannerBlock): string {
+  const lines = [
+    `${time(block.startMinute)}–${time(block.endMinute)} ${block.title}`,
+    block.subtitle,
+    ...block.conflicts.map(conflict => `${conflict.severity === 'blocking' ? '⛔' : '⚠'} ${conflict.message}`),
+  ]
+
+  return lines.filter(Boolean).join('\n')
+}
 </script>
 
 <template>
@@ -253,16 +279,21 @@ function time(minute: number): string {
               {{ row.instructor.lastName }}
             </th>
             <td v-for="cell in row.cells" :key="cell.dayIndex">
+              <!--
+                Load as a filled bar, nothing else. The count is a number nobody reads across 21
+                cells; it is in the tooltip, and the focused day says it in words underneath.
+              -->
               <button
                 type="button"
                 class="cell"
                 :data-focused="cell.dayIndex === focusedDay"
                 :data-severity="cell.severity"
                 :style="{ '--_load': cell.load }"
+                :title="`${row.instructor.lastName}, ${DAY_NAMES[cell.dayIndex]}: ${cell.count} appointments`"
                 @click="focusedDay = cell.dayIndex"
               >
                 <span class="bar" />
-                <b>{{ cell.count || '·' }}</b>
+                <i v-if="cell.severity" class="dot" />
               </button>
             </td>
           </tr>
@@ -272,8 +303,8 @@ function time(minute: number): string {
 
     <section class="focus">
       <header>
-        <h3>{{ DAY_NAMES[focusedDay] }} — {{ dayBlocks.length }} appointments</h3>
-        <small>Drag a student from the rail onto a column, or drag a block to move it.</small>
+        <h3>{{ DAY_NAMES[focusedDay] }} · {{ dayBlocks.length }} appointments</h3>
+        <small v-if="!staged">Drag a student onto a column to book.</small>
       </header>
 
       <div class="grid">
@@ -304,15 +335,25 @@ function time(minute: number): string {
               :data-kind="block.appointment.kind"
               :data-severity="block.conflicts.length ? (isBlocked(block.conflicts) ? 'blocking' : 'warning') : null"
               :style="{ top: topOf(block.startMinute), height: heightOf(block.appointment.durationMinutes) }"
+              :title="blockTooltip(block)"
               @pointerdown="beginDrag($event, {
                 subjectId: block.appointment.id,
                 durationMinutes: block.appointment.durationMinutes,
                 label: `Move ${block.title}`,
               })"
             >
+              <!--
+                One line by default: who and when. The vehicle, the class and the seat count only
+                appear when the block is tall enough to hold them without shouting; everything
+                else is in the tooltip and in the panel you get when you pick the block up.
+              -->
               <b>{{ time(block.startMinute) }} {{ block.title }}</b>
-              <span>{{ block.subtitle }}</span>
-              <span v-if="block.appointment.kind === 'theory'">{{ block.attendeeCount }}/{{ block.capacity }}</span>
+              <span v-if="block.appointment.durationMinutes >= 60">
+                {{ block.appointment.kind === 'theory'
+                  ? `${block.attendeeCount}/${block.capacity} seats`
+                  : block.subtitle }}
+              </span>
+              <i v-if="block.conflicts.length" class="mark" aria-hidden="true" />
             </article>
 
             <div
@@ -331,32 +372,32 @@ function time(minute: number): string {
     <aside class="rail">
       <template v-if="!staged">
         <h3>Needs booking</h3>
-        <p class="hint">
-          Open enrolments, least-booked first. Drag one onto the day.
-        </p>
 
+        <ul class="demand">
+          <li
+            v-for="item in demand"
+            :key="item.enrolment.id"
+            :title="`${item.bookedThisWeek} booked this week · enrolment ${item.status}`"
+            @pointerdown="beginDrag($event, {
+              enrolmentId: item.enrolment.id,
+              label: `Book ${item.label}`,
+            })"
+          >
+            <span class="who">{{ item.label }}</span>
+            <i v-if="item.status !== 'active'" class="mark" aria-hidden="true" />
+            <span class="count">{{ item.bookedThisWeek }}</span>
+          </li>
+        </ul>
+
+        <!-- Secondary, so it sits under the queue rather than in front of it. -->
         <label class="vehicle">
-          Vehicle for new lessons
+          Vehicle
           <select v-model="vehicleChoice">
             <option v-for="vehicle in planner.vehicles.value" :key="vehicle.id" :value="String(vehicle.id)">
               {{ vehicle.licencePlate }} ({{ vehicle.transmission }})
             </option>
           </select>
         </label>
-
-        <ul class="demand">
-          <li
-            v-for="item in demand"
-            :key="item.enrolment.id"
-            @pointerdown="beginDrag($event, {
-              enrolmentId: item.enrolment.id,
-              label: `Book ${item.label}`,
-            })"
-          >
-            <b>{{ item.label }}</b>
-            <span>{{ item.bookedThisWeek }} this week · {{ item.status }}</span>
-          </li>
-        </ul>
       </template>
 
       <template v-else>
@@ -367,28 +408,44 @@ function time(minute: number): string {
           · {{ staged.candidate.durationMinutes }} min
         </p>
 
-        <ol class="checklist">
-          <li
-            v-for="conflict in staged.conflicts"
-            :key="conflict.code"
-            :data-severity="conflict.severity"
-          >
-            <b>{{ conflict.message }}</b>
-            <small>{{ CONFLICT_RULES[conflict.code].why }}</small>
-          </li>
-          <li v-if="!staged.conflicts.length" data-severity="clear">
-            <b>All checks pass</b>
-            <small>Instructor, vehicle, student and room are all free.</small>
-          </li>
-        </ol>
+        <!--
+          The verdict, then the reasons — never the reasoning. Each rule states what is wrong in
+          one line; *why the rule exists* is one fold away, and stays folded for the reader who
+          books forty lessons a week and knows already.
+        -->
+        <p v-if="!staged.conflicts.length" class="ok">
+          All checks pass.
+        </p>
+
+        <template v-else>
+          <ol class="checklist">
+            <li
+              v-for="conflict in staged.conflicts"
+              :key="conflict.code"
+              :data-severity="conflict.severity"
+            >
+              {{ conflict.message }}
+            </li>
+          </ol>
+
+          <details class="why">
+            <summary>Why these rules?</summary>
+            <dl>
+              <template v-for="conflict in staged.conflicts" :key="conflict.code">
+                <dt>{{ conflict.detail ?? conflict.message }}</dt>
+                <dd>{{ CONFLICT_RULES[conflict.code].why }}</dd>
+              </template>
+            </dl>
+          </details>
+        </template>
 
         <label v-if="staged.conflicts.length && !isBlocked(staged.conflicts)">
-          Why are you overriding?
-          <input v-model="reason" placeholder="Required — stored on the appointment">
+          Reason for overriding
+          <input v-model="reason" placeholder="Stored on the appointment">
         </label>
 
         <p v-if="isBlocked(staged.conflicts)" class="blocked">
-          This one cannot be booked. Move it, or change the vehicle.
+          Cannot be booked. Move it, or change the vehicle.
         </p>
 
         <footer>
@@ -401,11 +458,9 @@ function time(minute: number): string {
         </footer>
       </template>
 
-      <ul v-if="planner.activity.value.length" class="log">
-        <li v-for="(entry, index) in planner.activity.value" :key="index" :data-severity="entry.severity">
-          {{ entry.text }}
-        </li>
-      </ul>
+      <p v-if="planner.activity.value.length" class="log">
+        {{ planner.activity.value[0]?.text }}
+      </p>
     </aside>
   </div>
 </template>
@@ -478,9 +533,15 @@ function time(minute: number): string {
   background: color-mix(in oklab, var(--accent-solid) calc(var(--_load) * 70%), transparent);
 }
 
-.cell b {
-  position: relative;
-  color: var(--text-primary);
+/* One dot, top-right, coloured by severity. Enough to send you to the day, not enough to read. */
+.dot {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  inline-size: 5px;
+  block-size: 5px;
+  border-radius: var(--radius-full);
+  background: var(--_severity);
 }
 
 .cell[data-focused="true"] {
@@ -488,8 +549,8 @@ function time(minute: number): string {
   outline-offset: -2px;
 }
 
-.cell[data-severity="warning"] { border-color: var(--warning-solid); }
-.cell[data-severity="blocking"] { border-color: var(--danger-solid); }
+.cell[data-severity="warning"] { --_severity: var(--warning-solid); }
+.cell[data-severity="blocking"] { --_severity: var(--danger-solid); }
 
 .focus {
   grid-column: 1;
@@ -582,8 +643,28 @@ function time(minute: number): string {
   --_kind-text: var(--warning-text);
 }
 
-.block[data-severity="warning"] { outline: 2px solid var(--warning-solid); outline-offset: -2px; }
-.block[data-severity="blocking"] { outline: 2px solid var(--danger-solid); outline-offset: -2px; }
+/*
+ * A warning is a corner mark, not a highlight — outline every warned block and a normal week
+ * looks like an emergency. Only the impossible ones get the ring.
+ */
+.mark {
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-end: 3px;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: var(--radius-full);
+  background: var(--_severity, var(--warning-solid));
+}
+
+.block[data-severity="warning"] { --_severity: var(--warning-solid); }
+
+.block[data-severity="blocking"] {
+  --_severity: var(--danger-solid);
+
+  outline: 2px solid var(--danger-solid);
+  outline-offset: -2px;
+}
 
 .ghost {
   position: absolute;
@@ -613,32 +694,37 @@ function time(minute: number): string {
   overflow: auto;
 }
 
-.hint,
 .when {
   font-size: var(--font-size-sm);
   color: var(--text-muted);
 }
 
+/* Under the queue and quieter than it: a setting, not a step. */
 .vehicle {
   display: flex;
   flex-direction: column;
   gap: var(--space-3xs);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  margin-block-start: var(--space-xs);
+  padding-block-start: var(--space-xs);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
 .demand {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2xs);
+  gap: 2px;
 }
 
+/* One line each: a name and how many times they are already in the week. */
 .demand li {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2xs);
   padding: var(--space-2xs) var(--space-xs);
-  border: 1px solid var(--border-default);
   border-radius: var(--radius-control);
   background: var(--surface-page);
   cursor: grab;
@@ -646,9 +732,26 @@ function time(minute: number): string {
   font-size: var(--font-size-sm);
 }
 
-.demand span {
+.demand li:hover {
+  background: var(--surface-hover);
+}
+
+.who {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.demand .mark {
+  position: static;
+  flex: none;
+}
+
+.count {
+  margin-inline-start: auto;
   color: var(--text-muted);
   font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
 }
 
 .checklist {
@@ -664,15 +767,28 @@ function time(minute: number): string {
   font-size: var(--font-size-sm);
 }
 
-.checklist li small {
-  display: block;
-  opacity: 0.85;
-  font-size: var(--font-size-xs);
-}
-
 .checklist li[data-severity="blocking"] { background: var(--danger-subtle); color: var(--danger-text); }
 .checklist li[data-severity="warning"] { background: var(--warning-subtle); color: var(--warning-text); }
-.checklist li[data-severity="clear"] { background: var(--success-subtle); color: var(--success-text); }
+
+.ok {
+  font-size: var(--font-size-sm);
+  color: var(--success-text);
+}
+
+/* Folded by default: the reasoning is for the first week, not the fiftieth. */
+.why {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.why summary {
+  cursor: pointer;
+}
+
+.why dt {
+  margin-block-start: var(--space-2xs);
+  color: var(--text-secondary);
+}
 
 .rail label {
   display: flex;
@@ -709,13 +825,10 @@ function time(minute: number): string {
 }
 
 .log {
-  list-style: none;
   margin-block-start: auto;
+  padding-block-start: var(--space-2xs);
+  border-top: 1px solid var(--border-subtle);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
-  border-top: 1px solid var(--border-subtle);
-  padding-block-start: var(--space-2xs);
 }
-
-.log li[data-severity="warning"] { color: var(--warning-text); }
 </style>
