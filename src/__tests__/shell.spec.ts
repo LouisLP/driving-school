@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
 import { describe, expect, it } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import App from '../App.vue'
@@ -19,7 +20,7 @@ async function mountApp(path = '/students') {
 
   const wrapper = mount(App, {
     global: {
-      plugins: [router, createAppI18n()],
+      plugins: [router, createAppI18n(), createPinia()],
       provide: { [API_KEY as symbol]: createFakeApi(seedDatabase(), { latencyMs: 0 }) },
       stubs: { Icon: true },
     },

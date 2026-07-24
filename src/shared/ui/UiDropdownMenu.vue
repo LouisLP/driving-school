@@ -44,7 +44,12 @@ defineEmits<{ select: [id: string] }>()
 
 <template>
   <DropdownMenuRoot>
-    <DropdownMenuTrigger class="trigger" :aria-label="triggerLabel">
+    <!-- A supplied trigger is words, and words need room; the default is a square icon button. -->
+    <DropdownMenuTrigger
+      class="trigger"
+      :data-text="$slots.trigger ? '' : undefined"
+      :aria-label="$slots.trigger ? undefined : triggerLabel"
+    >
       <slot name="trigger">
         <Icon icon="lucide:ellipsis" />
       </slot>
@@ -82,6 +87,18 @@ defineEmits<{ select: [id: string] }>()
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
+}
+
+.trigger[data-text] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  inline-size: auto;
+  padding-inline: var(--space-xs);
+  border: var(--border-width-hairline) solid var(--border-default);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
 }
 
 .trigger:hover,

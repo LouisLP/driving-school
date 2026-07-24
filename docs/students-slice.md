@@ -483,10 +483,22 @@ real backend would do rather than make the client fetch the school's whole calen
 page.
 
 The arithmetic itself is **not** in the seam. It lives in
-`src/shared/domain/enrolment.utils.ts` as `deriveEnrolmentProgress(offering, appointments)`, pure
-and unit-tested, with the fake calling it — same shape as `deriveStudentStanding`, and the same
-reason: an HTTP implementation would compute this server-side, and when it does, the rule it
-implements should be written down here rather than reverse-engineered from a Vue component.
+`src/shared/domain/enrolment.utils.ts` as
+`deriveEnrolmentProgress(enrolmentId, requirements, appointments)`, pure and unit-tested, with the
+fake calling it — same shape as `deriveStudentStanding`, and the same reason: an HTTP
+implementation would compute this server-side, and when it does, the rule it implements should be
+written down here rather than reverse-engineered from a Vue component.
+
+Two details the build settled, neither of which changes the shape above:
+
+- The **enrolment id is a parameter**, not implied by pre-filtering the appointments. A theory
+  appointment is shared by a room full of students, so whether *this* enrolment attended is read
+  from its attendee list — which no amount of filtering by the caller can express.
+- The function **delegates the counting** to `deriveTrainingRecord` and the comparison to
+  `deriveExamReadiness` (#21) rather than doing either itself. What is left in this file is the
+  exam history and the booked count, which nothing else needed. `EnrolmentProgress` is declared
+  beside them in `shared/domain` and re-exported from the contract, because the domain may not
+  import the seam — the same arrangement `FieldErrors` already has.
 
 ### `AppointmentQuery.studentId`
 
@@ -548,11 +560,19 @@ Plus, not components:
 | File | Purpose |
 | --- | --- |
 | `src/shared/ui/portal.css` | Global styles for portalled content, keyed on `data-reka-*` attributes. #5 proved `<style scoped>` cannot reach body-teleported nodes and Reka's documented `:deep()` workaround cannot either — so portalled parts are styled globally, on purpose, in one named file. |
+| `src/shared/ui/UiLocaleProvider.vue` | Added by the build. Reka's `ConfigProvider`, bound to the vue-i18n locale — see the note below. |
 | `src/shared/ui/index.ts` | Barrel. `shared/ui` is a published-feeling boundary; features import from `@/shared/ui`, never from a file inside it. |
 | `src/shared/stores/toast.store.ts` | Pinia. Toasts outlive the route that raised them — one of the three uses #3 reserved Pinia for. `UiToaster` renders it; `useToast()` raises. |
 
-`ConfigProvider` (locale-bound, from #5) is added at the app root in `main.ts` as part of this
-slice, since it is what makes `UiDateField` follow the locale switcher.
+`ConfigProvider` (locale-bound, from #5) is mounted at the app root as part of this slice, since
+it is what makes `UiDateField` follow the locale switcher.
+
+**Amended by the build.** It goes in `App.vue`, not in `main.ts`, and behind a wrapper —
+`UiLocaleProvider`. Two reasons: `ConfigProvider` is a component that calls `useI18n()`, so it
+cannot be mounted before the plugin is installed; and wrapping it keeps "no `reka-ui` import
+outside `src/shared/ui/**`" an absolute rather than an absolute with one exception for the app
+root. `UiToaster` is mounted beside it, for the reason a toast exists at all: it has to survive
+the navigation that raised it.
 
 ---
 
@@ -594,19 +614,29 @@ Seventeen new files, two rewritten. No `types.ts`: every type this feature needs
 `shared/domain` or `shared/api`, and a feature that invents its own copy of `Student` is the first
 step to two of them.
 
+Three small shared additions the build needed and this manifest did not anticipate, all in
+`shared/` rather than here because a second feature will want each of them on day one:
+`useFormat()` (the locale-bound date and money edge — the record page formats both, and neither
+belongs in a template), `formatPostalAddress` (so an address reads the same here and on an invoice
+later, which the identity panel's row already promised), and `ageInYears`.
+
 No `stores/`: nothing here outlives a route except toasts, which are shared.
 
 ### `src/shared/`
 
 ```
-ui/                                the nineteen files listed above
+ui/                                the components listed above, + portal.css + index.ts
 composables/
   use-form.ts                      + use-form.spec.ts
   use-list-query.ts                + use-list-query.spec.ts
+  use-format.ts                    the locale-bound date and money edge
 stores/
   toast.store.ts
 domain/
   enrolment.utils.ts               deriveEnrolmentProgress + spec
+  address.utils.ts                 formatPostalAddress
+  student.types.ts                 changed — STUDENT_STANDINGS, so the four are enumerable
+  time.utils.ts                    changed — ageInYears
 api/
   contracts/enrolments.contract.ts     changed — EnrolmentSummary, summaries()
   contracts/appointments.contract.ts   changed — studentId filter
@@ -620,9 +650,11 @@ i18n/
 ### Root
 
 ```
-package.json          + reka-ui
-eslint.config.js      + no-restricted-imports: reka-ui outside src/shared/ui/**
-src/main.ts           + ConfigProvider, + UiToaster mount point
+package.json          + reka-ui, + @internationalized/date
+eslint.config.js      + no-restricted-imports: reka-ui and @internationalized/date
+                        outside src/shared/ui/**, and no deep imports into it
+src/App.vue           + UiLocaleProvider, + UiToaster mount point (see above)
+src/styles/index.css  + the portal.css import
 docs/students-slice.md  this file
 ```
 
@@ -641,8 +673,7 @@ students.detail.identity / account / enrolments / noEnrolments /
 students.enrolment.progress.standard / theoryBasic / theoryClassSpecific /
   specialDrives / readiness.ready / readiness.short / exams /
   next / recent / noneBooked / notSat / status.*
-students.form.createTitle / editTitle / discardTitle / discardBody /
-  addressLegend / notesHint
+students.form.createTitle / editTitle / addressLegend / notesHint
 students.actions.edit / delete / newEnrolment / recordPayment
 students.delete.title / body / hasEnrolments
 ```

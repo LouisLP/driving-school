@@ -11,7 +11,6 @@
  * button; it changes nothing else, because the a11y contract is the same for both.
  */
 import {
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -63,14 +62,21 @@ const open = defineModel<boolean>('open', { required: true })
             {{ cancelLabel }}
           </AlertDialogCancel>
 
-          <AlertDialogAction
+          <!--
+            A plain button rather than Reka's `AlertDialogAction`, which closes the dialog on
+            click. Every confirm here triggers a request that can be refused — deleting a student
+            with enrolments is a `conflict` — and a dialog that has already closed has nowhere to
+            show the reason. So confirming emits, and the caller closes when the write succeeds.
+          -->
+          <button
+            type="button"
             class="ui-alert-confirm"
             :data-tone="tone"
             :disabled="pending"
             @click="$emit('confirm')"
           >
             {{ confirmLabel }}
-          </AlertDialogAction>
+          </button>
         </footer>
       </AlertDialogContent>
     </AlertDialogPortal>
