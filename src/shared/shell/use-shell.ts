@@ -8,11 +8,12 @@ import { useT } from '@/i18n/use-t'
 import { findNavItem } from '@/router/nav'
 
 /**
- * Everything the chrome needs to know about the current route, derived once.
+ * Everything the chrome knows about the current route, derived once by the shell and shared with
+ * whatever renders below it.
  *
- * Every shell variant consumes this. The variants disagree about layout; they must not disagree
- * about which section is active or what the page is called, so that lives here and not in three
- * near-identical templates.
+ * The sidebar, the breadcrumb and the header must not disagree about which section is active or
+ * what the page is called, so none of them works it out for itself: `AppShell` calls
+ * `provideShell()`, everyone else calls `useShell()`.
  */
 
 export interface Crumb {
@@ -23,43 +24,32 @@ export interface Crumb {
   to?: RouteLocationRaw
 }
 
-/**
- * A page can rename itself once it knows what it is looking at. `usePageTitle(() => student.name)`
- * on a detail page replaces "Student" with "Anna Müller" in the header, breadcrumb and tab title.
- */
-const PAGE_TITLE_KEY: InjectionKey<Ref<string | null>> = Symbol('shell:page-title')
-
-export function providePageTitle(): Ref<string | null> {
-  const title = ref<string | null>(null)
-  provide(PAGE_TITLE_KEY, title)
-  return title
+export interface ShellContext {
+  /** The nav item to highlight. Detail routes carry their section, so they highlight it too. */
+  activeItem: Readonly<Ref<NavItem | undefined>>
+  /** The subsection links for the current section, empty for sections that have none. */
+  activeChildren: Readonly<Ref<readonly NavChild[]>>
+  /** What a page called itself via {@link usePageTitle}, if anything. */
+  pageTitle: Ref<string | null>
+  /** What goes in the `<h1>`: the page's own name if it has one, the route's title otherwise. */
+  heading: Readonly<Ref<string>>
+  crumbs: Readonly<Ref<readonly Crumb[]>>
 }
 
-export function usePageTitle(source: () => string | null | undefined): void {
-  const title = inject(PAGE_TITLE_KEY, null)
-  if (!title)
-    return
+const SHELL_KEY: InjectionKey<ShellContext> = Symbol('shell')
 
-  watchEffect(() => {
-    title.value = source() ?? null
-  })
-  onScopeDispose(() => {
-    title.value = null
-  })
-}
-
-export function useShell() {
+/** Called once, by the shell. Returns the same context `useShell()` hands to everyone below. */
+export function provideShell(): ShellContext {
   const route = useRoute()
   const t = useT()
-  const pageTitle = inject(PAGE_TITLE_KEY, ref<string | null>(null))
 
-  /** The nav item to highlight. Detail routes carry their section, so they highlight it too. */
-  const activeItem = computed<NavItem | undefined>(() => findNavItem(route.meta.section))
+  const pageTitle = ref<string | null>(null)
 
-  /** The subsection tabs for the current section, empty for sections that have none. */
+  const activeItem = computed(() => findNavItem(route.meta.section))
   const activeChildren = computed<readonly NavChild[]>(() => activeItem.value?.children ?? [])
-
   const titleKey = computed<MessageKey | undefined>(() => route.meta.titleKey)
+
+  const heading = computed(() => pageTitle.value ?? (titleKey.value ? t(titleKey.value) : ''))
 
   const crumbs = computed<readonly Crumb[]>(() => {
     const item = activeItem.value
@@ -82,8 +72,39 @@ export function useShell() {
     return [{ labelKey: item.labelKey }]
   })
 
-  /** What goes in the `<h1>`: the page's own name if it has one, the route's title otherwise. */
-  const heading = computed(() => pageTitle.value ?? (titleKey.value ? t(titleKey.value) : ''))
+  const context: ShellContext = { activeItem, activeChildren, pageTitle, heading, crumbs }
+  provide(SHELL_KEY, context)
+  return context
+}
 
-  return { activeItem, activeChildren, titleKey, pageTitle, heading, crumbs }
+/**
+ * For anything rendered inside the shell. Throws outside it rather than returning a hollow context
+ * that would silently render an empty breadcrumb.
+ */
+export function useShell(): ShellContext {
+  const context = inject(SHELL_KEY, null)
+  if (!context)
+    throw new Error('[shell] useShell() outside the app shell')
+
+  return context
+}
+
+/**
+ * Lets a page rename itself once it knows what it is looking at.
+ * `usePageTitle(() => student.name)` on a detail page replaces "Student" with "Anna Müller" in the
+ * header, the breadcrumb and the tab title. A no-op outside the shell, so a component that uses it
+ * stays mountable in isolation.
+ */
+export function usePageTitle(source: () => string | null | undefined): void {
+  const context = inject(SHELL_KEY, null)
+  if (!context)
+    return
+
+  watchEffect(() => {
+    context.pageTitle.value = source() ?? null
+  })
+
+  onScopeDispose(() => {
+    context.pageTitle.value = null
+  })
 }
