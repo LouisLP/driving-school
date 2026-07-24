@@ -217,6 +217,16 @@ into the styling conventions when #4 lands the token layer.
 
 Ranked by cost.
 
+> **Two of these were declined when the first real screen was specified.** The
+> Students slice ([#8](https://github.com/LouisLP/driving-school/issues/8),
+> [docs/students-slice.md](../students-slice.md)) turned down **Valibot** — the
+> domain validators shipped by #3 are already called by the seam on every write,
+> so a schema library would be a second definition of "valid" — and **TanStack
+> Table**, because the seam sorts, filters and pages server-side, leaving the
+> client no row model to own. Decisions 5 and 7 of that document carry the
+> reasoning. This section is preserved as written; where it disagrees with the
+> slice, the slice is current.
+
 **1. Resource scheduler (Appointment Planner).** Nothing headless in the Vue
 ecosystem gives you resource-column day/week scheduling without also giving you
 its styling and its data model, and Reka's date family is month-grid +
