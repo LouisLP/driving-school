@@ -1,9 +1,19 @@
 import type { OfferingRepository } from '../contracts/offerings.contract'
 import type { FakeContext } from './context'
-import type { LicenceClass, LicenceClassOffering } from '@/shared/domain'
+import type { LicenceClass, LicenceClassOffering, TrainingRequirements } from '@/shared/domain'
 import { LICENCE_CLASSES } from '@/shared/domain'
 import { ApiError } from '../api.error'
 import { applyPatch, detach } from './fake.utils'
+
+/** Every number a requirements patch carries, flattened for one range check. */
+function countsOf(requirements: TrainingRequirements): number[] {
+  return [
+    requirements.standardPracticalUnits,
+    requirements.basicTheoryLessons,
+    requirements.classSpecificTheoryLessons,
+    ...Object.values(requirements.specialDriveUnits),
+  ]
+}
 
 export function createOfferingRepository(ctx: FakeContext): OfferingRepository {
   const { db } = ctx
@@ -39,12 +49,9 @@ export function createOfferingRepository(ctx: FakeContext): OfferingRepository {
 
       const offering = findOffering(licenceClass)
 
-      if ((patch.minimumPracticalAppointments ?? 0) < 0
-        || (patch.minimumTheoryAppointments ?? 0) < 0) {
-        throw ApiError.validation({
-          minimumPracticalAppointments: 'shared.validation.notPositive',
-        })
-      }
+      // Zero is a legal requirement — BE mandates no night drives — so only negatives reject.
+      if (patch.requirements && countsOf(patch.requirements).some(count => count < 0))
+        throw ApiError.validation({ requirements: 'shared.validation.negative' })
 
       applyPatch(offering, detach(patch))
       ctx.commit()
