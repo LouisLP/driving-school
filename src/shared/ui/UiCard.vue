@@ -77,14 +77,15 @@ defineSlots<{
 }
 
 /* An accent tick before the label. The one bit of colour on an otherwise plain panel header, and
-   what makes a column of six cards scan as six things rather than one long page. */
+   what makes a column of six cards scan as six things rather than one long page. Flat: at 2px
+   wide a gradient is two pixels of two colours, which is not a gradient, it is a rounding error. */
 .card__title::before {
   content: "";
   flex: none;
   inline-size: var(--space-3xs);
   block-size: 0.85em;
   border-radius: var(--radius-pill);
-  background: var(--accent-gradient);
+  background: var(--accent-solid);
 }
 
 .card__actions {
