@@ -1,7 +1,9 @@
 <script setup lang="ts">
 // Temporary: proves the i18n wiring and the fake-API seam end-to-end in the browser.
 // Replaced by the real app shell (issue #7) and the Students slice (issue #8).
+import { inject } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { routeLocationKey, RouterView } from 'vue-router'
 import { SUPPORTED_LOCALES } from './i18n'
 import { useT } from './i18n/use-t'
 import { useApi } from './shared/api'
@@ -9,6 +11,10 @@ import { useAsyncData } from './shared/composables/use-async-data'
 import ApiDevPanel from './shared/dev/ApiDevPanel.vue'
 
 const { locale } = useI18n()
+// Until the shell (#7) lands there are no real routes, so anything that *does* match is a
+// throwaway prototype route and takes the whole screen. Optional, because component tests mount
+// this file without a router.
+const route = inject(routeLocationKey, null)
 const t = useT()
 
 const api = useApi()
@@ -18,7 +24,9 @@ const { data, isPending, error, refresh } = useAsyncData(
 </script>
 
 <template>
-  <main>
+  <RouterView v-if="route?.matched.length" />
+
+  <main v-else>
     <h1>{{ t('dashboard.title') }}</h1>
 
     <section>
