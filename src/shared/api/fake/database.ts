@@ -2,8 +2,10 @@ import type {
   Appointment,
   Enrolment,
   Instructor,
+  Invoice,
   LicenceClassOffering,
   Location,
+  Payment,
   Student,
   Vehicle,
 } from '@/shared/domain'
@@ -20,6 +22,8 @@ export interface Database {
   students: Student[]
   enrolments: Enrolment[]
   appointments: Appointment[]
+  invoices: Invoice[]
+  payments: Payment[]
   instructors: Instructor[]
   vehicles: Vehicle[]
   locations: Location[]
@@ -33,7 +37,7 @@ export const SNAPSHOT_KEY = 'driving-school/db'
  * is discarded and reseeded rather than migrated — this is seeded demo data, and a migration path
  * would be ceremony protecting nothing.
  */
-export const SNAPSHOT_VERSION = 1
+export const SNAPSHOT_VERSION = 2
 
 interface Snapshot extends Database {
   version: number

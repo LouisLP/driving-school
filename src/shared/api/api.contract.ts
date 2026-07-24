@@ -1,4 +1,5 @@
 import type { AppointmentRepository } from './contracts/appointments.contract'
+import type { BillingRepository } from './contracts/billing.contract'
 import type { EnrolmentRepository } from './contracts/enrolments.contract'
 import type { InstructorRepository } from './contracts/instructors.contract'
 import type { LocationRepository } from './contracts/locations.contract'
@@ -24,6 +25,7 @@ export interface Api {
   students: StudentRepository
   enrolments: EnrolmentRepository
   appointments: AppointmentRepository
+  billing: BillingRepository
   instructors: InstructorRepository
   vehicles: VehicleRepository
   locations: LocationRepository

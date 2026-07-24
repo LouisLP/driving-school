@@ -18,13 +18,14 @@ components ──► composables ──► useApi() : Api ──┬──► cre
               useAsyncData
 ```
 
-`Api` is seven per-entity repositories:
+`Api` is eight per-entity repositories:
 
 ```ts
 interface Api {
   students: StudentRepository
   enrolments: EnrolmentRepository
   appointments: AppointmentRepository
+  billing: BillingRepository
   instructors: InstructorRepository
   vehicles: VehicleRepository
   locations: LocationRepository
@@ -32,8 +33,11 @@ interface Api {
 }
 ```
 
-Per-entity rather than one flat client because seven small interfaces are seven things you can
-read, implement and stub independently — a single 35-method type is none of those. Each lives in
+Per-entity rather than one flat client because eight small interfaces are eight things you can
+read, implement and stub independently — a single 40-method type is none of those. `billing` is
+the one that covers more than a single collection: invoices, the payments that settle them and the
+balances read off both are one aggregate, and splitting them would leave `enrolmentBalance`
+homeless. Its reasoning is in [docs/money-model.md](./money-model.md). Each lives in
 `src/shared/api/contracts/`, and the fake that satisfies it in `src/shared/api/fake/`.
 
 ### Getting hold of it
@@ -70,7 +74,9 @@ mount(StudentList, {
 **Read models where the seam must own a join.** The CRM list shows each student's standing, which
 is derived from their *enrolments*. Assembling that above the seam would mean fetching every
 enrolment in the school to render page one — a query no real backend would serve. So the list
-returns `StudentListItem`, with `standing` and `openLicenceClasses` already joined.
+returns `StudentListItem`, with `standing` and `openLicenceClasses` already joined. The debtors
+list is the same shape of problem one collection further out: `DebtorListItem` is joined from every
+invoice and payment a student holds, which no client should be fetching.
 
 The rule: **if a real HTTP backend would have to do the join to avoid N+1, the seam does it too.**
 Read models are read-only, named after what they are (not the screen that renders them), and are
@@ -221,7 +227,9 @@ key — an HTTP implementation has no latency dial, so `Api` must not mention on
 
 **Seed data** is hand-written, small, and illustrative: one of every interesting case (a paused
 enrolment, a pure prospect with no enrolments at all, an alumnus, a leaver, an automatic car, a
-motorcycle) rather than volume. Ids are readable (`stu-04`) because a devtools panel is where you
+motorcycle, an overdue debt, a deposit sitting on account) rather than volume. The books are the
+one part not typed in by hand: seed invoices are built by running the billing rule over the seeded
+calendar, so they are data the seam itself could have produced. Ids are readable (`stu-04`) because a devtools panel is where you
 will read them. Appointments are anchored to the current week so the planner always has something
 to show. `seed.spec.ts` holds the seed to the same rules `schedule()` enforces, so the data that
 ships could have been created through the seam.

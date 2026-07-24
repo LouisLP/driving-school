@@ -2,6 +2,7 @@ import type { Enrolment, EnrolmentStatus } from './enrolment.types'
 import type { EnrolmentId, StudentId } from './identifier.types'
 import type { IsoDateTime } from './time.types'
 import { describe, expect, it } from 'vitest'
+import { ZERO } from './money.utils'
 import { deriveStudentStanding } from './student.utils'
 
 function enrolment(status: EnrolmentStatus): Enrolment {
@@ -10,6 +11,14 @@ function enrolment(status: EnrolmentStatus): Enrolment {
     studentId: 'student-1' as StudentId,
     licenceClass: 'B',
     status,
+    agreedPrices: {
+      agreedAt: '2026-01-06T09:00:00.000Z' as IsoDateTime,
+      basicFee: ZERO,
+      practicalLessonUnit: ZERO,
+      specialDriveUnit: ZERO,
+      theoryExamFee: ZERO,
+      practicalExamFee: ZERO,
+    },
     enquiredAt: '2026-01-06T09:00:00.000Z' as IsoDateTime,
     startedAt: null,
     closedAt: null,

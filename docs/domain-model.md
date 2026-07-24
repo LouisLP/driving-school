@@ -2,7 +2,8 @@
 
 The entities, their relationships and their lifecycles. Vocabulary is defined once in
 [CONTEXT.md](../CONTEXT.md); this document describes how those terms relate. The types that encode
-it live in `src/shared/domain/`.
+it live in `src/shared/domain/`. Prices, invoices, payments and balances have their own write-up
+in [docs/money-model.md](./money-model.md).
 
 Settled by [Domain model & ubiquitous language (#2)](https://github.com/LouisLP/driving-school/issues/2).
 
@@ -47,8 +48,10 @@ and the student's own record can never disagree. `deriveStudentStanding` is a pu
 
 ### Enrolment
 
-One student's training toward one licence class. Owns the training's status, its dates, and (later)
-whatever finance attaches to it.
+One student's training toward one licence class. Owns the training's status, its dates, and the
+prices it was signed up at — `agreedPrices`, a copy of the offering's price list taken at creation
+so a later price rise cannot reprice training already delivered. Invoices and payments hang off the
+enrolment too; see [docs/money-model.md](./money-model.md).
 
 ```
 enquiring ──► active ──► passed
@@ -107,8 +110,8 @@ carries `recordedAt`. Finance needs `cancelledAt` to tell a three-weeks-out canc
 same-day one; `noShow` stays distinct from `cancelled` because a school bills them under different
 rules.
 
-`completed` is what makes an appointment invoiceable. How that becomes a line item is not settled
-here — money modelling is a later ticket.
+`completed` is what makes an appointment invoiceable. What each outcome is worth in euros, and how
+it becomes an invoice line, is settled in [docs/money-model.md](./money-model.md).
 
 #### Attendance
 
@@ -149,8 +152,8 @@ A closed union of official EU codes (`AM`, `A1`, `A2`, `A`, `B`, `BE`, `C1`, `C`
 exhaustiveness checking and typed i18n keys.
 
 What the school *does* with them is configuration: `LicenceClassOffering` records whether a class
-is currently taught and the minimum training it requires. Editing an offering is a school setting;
-inventing a licence class is not something a driving school can do.
+is currently taught, the minimum training it requires, and its `prices`. Editing an offering is a
+school setting; inventing a licence class is not something a driving school can do.
 
 ## Conventions these types follow
 
@@ -166,8 +169,6 @@ inventing a licence class is not something a driving school can do.
 
 ## Deliberately not settled here
 
-- **Money** — prices, invoices, payments, balances, and the rule turning a completed appointment
-  into a line item.
 - **Conflict detection** — the full rule set and how conflicts are surfaced in the planner. Only
   the data the rules read is fixed here.
 - **Instructor availability & opening hours** — the shape of working hours, absences and holidays.

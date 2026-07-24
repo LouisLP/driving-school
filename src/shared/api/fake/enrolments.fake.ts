@@ -75,12 +75,21 @@ export function createEnrolmentRepository(ctx: FakeContext): EnrolmentRepository
         )
       }
 
+      const offering = db.offerings.find(it => it.licenceClass === input.licenceClass)
+
+      if (!offering?.isOffered)
+        throw ApiError.conflict(`The school does not currently teach ${input.licenceClass}.`)
+
+      const enquiredAt = ctx.now()
+
       const enrolment: Enrolment = {
         id: mintId<EnrolmentId>(),
         studentId: input.studentId,
         licenceClass: input.licenceClass,
         status: 'enquiring',
-        enquiredAt: ctx.now(),
+        // Copied, not referenced: a price rise next spring must not reprice this training.
+        agreedPrices: { agreedAt: enquiredAt, ...detach(offering.prices) },
+        enquiredAt,
         startedAt: null,
         closedAt: null,
       }
