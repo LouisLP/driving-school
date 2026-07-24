@@ -2,12 +2,29 @@
   "actions": {
     "cancel": "Cancel",
     "delete": "Delete",
+    "retry": "Try again",
     "save": "Save",
     "search": "Search"
+  },
+  "errors": {
+    "conflict": "That is not possible right now",
+    "network": "Could not reach the server",
+    "notFound": "Not found",
+    "validation": "Please check the highlighted fields"
   },
   "states": {
     "empty": "Nothing here yet",
     "error": "Something went wrong",
     "loading": "Loading…"
+  },
+  "validation": {
+    "dateInFuture": "Must not be in the future",
+    "invalidDate": "Not a valid date",
+    "invalidEmail": "Not a valid email address",
+    "invalidPhone": "Not a valid phone number",
+    "invalidPostalCode": "Not a valid postal code",
+    "notPositive": "Must be greater than zero",
+    "required": "Required",
+    "tooYoung": "Too young to train here"
   }
 }

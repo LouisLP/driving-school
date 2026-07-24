@@ -11,6 +11,17 @@ export function appointmentEndsAt(appointment: Appointment): IsoDateTime {
 }
 
 /**
+ * Whether two appointments occupy any of the same time. Half-open — an appointment ending at
+ * 10:00 does not clash with one starting at 10:00, which is how back-to-back lessons are booked.
+ *
+ * The building block of every double-booking check; who is double-booked is the caller's
+ * question. The full conflict rule set is not settled here.
+ */
+export function appointmentsOverlap(a: Appointment, b: Appointment): boolean {
+  return a.startsAt < appointmentEndsAt(b) && b.startsAt < appointmentEndsAt(a)
+}
+
+/**
  * The licence-class match rule: whoever teaches must be qualified for the class, and whatever
  * they teach in must be suitable for it.
  *
