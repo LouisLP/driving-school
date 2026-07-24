@@ -10,3 +10,5 @@ export type VehicleId = Brand<string, 'VehicleId'>
 export type LocationId = Brand<string, 'LocationId'>
 export type EnrolmentId = Brand<string, 'EnrolmentId'>
 export type AppointmentId = Brand<string, 'AppointmentId'>
+export type InvoiceId = Brand<string, 'InvoiceId'>
+export type PaymentId = Brand<string, 'PaymentId'>

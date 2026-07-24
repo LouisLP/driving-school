@@ -1,6 +1,6 @@
 import type { Appointment, VehicleId } from '@/shared/domain'
 import { describe, expect, it } from 'vitest'
-import { appointmentsOverlap, isLicenceClassMatched } from '@/shared/domain'
+import { appointmentsOverlap, isLicenceClassMatched, totalOf } from '@/shared/domain'
 import { seedDatabase } from './seed'
 
 const db = seedDatabase()
@@ -85,6 +85,41 @@ describe('seed data', () => {
 
       if (enrolment.status !== 'enquiring')
         expect(enrolment.startedAt).not.toBeNull()
+    }
+  })
+
+  it('bills nothing twice and quotes only agreed prices', () => {
+    const lines = db.invoices
+      .filter(it => it.state.status !== 'void')
+      .flatMap(invoice => invoice.lines.map(line => ({ invoice, line })))
+
+    const keys = lines.map(({ invoice, line }) => `${invoice.enrolmentId}:${line.appointmentId ?? line.reason}`)
+    expect(new Set(keys).size).toBe(keys.length)
+
+    for (const invoice of db.invoices) {
+      expect(invoice.total).toBe(totalOf(invoice.lines))
+
+      const enrolment = db.enrolments.find(it => it.id === invoice.enrolmentId)!
+      const agreed = Object.values(enrolment.agreedPrices)
+
+      expect(invoice.lines.every(line => agreed.includes(line.unitPrice))).toBe(true)
+    }
+  })
+
+  it('points every payment at money it could have settled', () => {
+    const enrolments = new Set(db.enrolments.map(it => it.id))
+
+    for (const payment of db.payments) {
+      expect(enrolments.has(payment.enrolmentId)).toBe(true)
+      expect(payment.amount).toBeGreaterThan(0)
+
+      if (payment.invoiceId === null)
+        continue
+
+      const invoice = db.invoices.find(it => it.id === payment.invoiceId)!
+
+      expect(invoice.enrolmentId).toBe(payment.enrolmentId)
+      expect(invoice.state.status).toBe('issued')
     }
   })
 

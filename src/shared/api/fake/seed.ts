@@ -1,23 +1,42 @@
 import type { Database } from './database'
 import type {
+  AgreedPrices,
   Appointment,
   AppointmentId,
   Attendance,
+  BillableItem,
   Enrolment,
   EnrolmentId,
   Instructor,
   InstructorId,
+  Invoice,
+  InvoiceId,
   IsoDate,
   IsoDateTime,
+  LicenceClass,
   LicenceClassOffering,
   Location,
   LocationId,
+  Payment,
+  PaymentId,
+  PaymentMethod,
+  PriceList,
   Student,
   StudentId,
   Vehicle,
   VehicleId,
 } from '@/shared/domain'
-import { LICENCE_CLASSES, toIsoDateTime } from '@/shared/domain'
+import {
+  addMinutes,
+  basicFeeItem,
+  billableItemFor,
+  DEFAULT_PAYMENT_TERM_DAYS,
+  fromEuros,
+  LICENCE_CLASSES,
+  multiplyMoney,
+  toIsoDateTime,
+  totalOf,
+} from '@/shared/domain'
 
 // --- Places, people, fleet -------------------------------------------------------------------
 
@@ -154,6 +173,59 @@ const VEHICLES: readonly Vehicle[] = [
   },
 ]
 
+// --- Prices ----------------------------------------------------------------------------------
+
+/** `[basic fee, lesson unit, special-drive unit, theory exam, practical exam]`, in euros. */
+type PriceRow = readonly [number, number, number, number, number]
+
+const PRICES: Partial<Record<LicenceClass, PriceRow>> = {
+  B: [399, 62, 75, 35, 130],
+  BE: [290, 70, 80, 25, 140],
+  A1: [349, 60, 72, 35, 130],
+  A2: [349, 60, 72, 35, 130],
+  A: [369, 64, 76, 35, 130],
+  C: [590, 95, 110, 45, 210],
+  CE: [690, 105, 120, 45, 240],
+}
+
+const NOT_OFFERED: PriceRow = [0, 0, 0, 0, 0]
+
+function priceList([basic, lesson, special, theoryExam, practicalExam]: PriceRow): PriceList {
+  return {
+    basicFee: fromEuros(basic),
+    practicalLessonUnit: fromEuros(lesson),
+    specialDriveUnit: fromEuros(special),
+    theoryExamFee: fromEuros(theoryExam),
+    practicalExamFee: fromEuros(practicalExam),
+  }
+}
+
+/** The school put its prices up on 1 January 2025. Anyone who signed before pays the old ones. */
+const PRICE_RISE = '2025-01-01T00:00:00.000Z' as IsoDateTime
+const PRE_RISE_FACTOR = 0.9
+
+/**
+ * The prices an enrolment agreed to, which is what every invoice on it quotes.
+ *
+ * The pre-rise discount is here so the seed actually demonstrates the property the model exists
+ * to protect: Tim's 2024 enrolment bills at 2024 prices however often the offering is edited.
+ */
+function agreedPricesFor(licenceClass: LicenceClass, agreedAt: IsoDateTime): AgreedPrices {
+  const current = priceList(PRICES[licenceClass] ?? NOT_OFFERED)
+
+  if (agreedAt >= PRICE_RISE)
+    return { agreedAt, ...current }
+
+  return {
+    agreedAt,
+    basicFee: multiplyMoney(current.basicFee, PRE_RISE_FACTOR),
+    practicalLessonUnit: multiplyMoney(current.practicalLessonUnit, PRE_RISE_FACTOR),
+    specialDriveUnit: multiplyMoney(current.specialDriveUnit, PRE_RISE_FACTOR),
+    theoryExamFee: multiplyMoney(current.theoryExamFee, PRE_RISE_FACTOR),
+    practicalExamFee: multiplyMoney(current.practicalExamFee, PRE_RISE_FACTOR),
+  }
+}
+
 // --- Students & enrolments -------------------------------------------------------------------
 
 const STUDENTS: readonly Student[] = [
@@ -203,6 +275,7 @@ function buildOfferings(): LicenceClassOffering[] {
       isOffered: minimums !== undefined,
       minimumPracticalAppointments: minimums?.[0] ?? 0,
       minimumTheoryAppointments: minimums?.[1] ?? 0,
+      prices: priceList(PRICES[licenceClass] ?? NOT_OFFERED),
     }
   })
 }
@@ -309,6 +382,122 @@ function pastOutcome(startsAt: IsoDateTime, now: IsoDateTime, index: number): Ap
   return { status: 'completed', completedAt: startsAt }
 }
 
+// --- Finance ---------------------------------------------------------------------------------
+
+const MINUTES_PER_DAY = 24 * 60
+
+/**
+ * The school's books, built by running the billing rule over the calendar above rather than by
+ * typing amounts in.
+ *
+ * That is the point: seed invoices whose lines were hand-written would drift from what
+ * `billableItems` says the moment either changed, and the fake would be teaching the app a
+ * billing rule the domain does not have. Here every line came from `billableItemFor`, so the seed
+ * is data the seam itself could have produced.
+ *
+ * One of each interesting case: settled history, an overdue debt, a part-payment still in date, a
+ * draft nobody has sent, and a deposit sitting on account with no invoice to attach to.
+ */
+function buildFinance(
+  enrolments: readonly Enrolment[],
+  appointments: readonly Appointment[],
+  now: Date,
+): { invoices: Invoice[], payments: Payment[] } {
+  const invoices: Invoice[] = []
+  const payments: Payment[] = []
+
+  function draft(enrolmentId: string, cutDaysAgo: number): Invoice {
+    const enrolment = enrolments.find(it => it.id === enrolmentId as EnrolmentId)!
+    const cutAt = daysFromNow(now, cutDaysAgo)
+
+    const lines: BillableItem[] = [
+      basicFeeItem(enrolment),
+      ...appointments
+        .filter(it => it.kind !== 'theory' && it.enrolmentId === enrolment.id)
+        .map(it => billableItemFor(it, enrolment.agreedPrices))
+        .filter((it): it is BillableItem => it !== null),
+    ]
+      .filter(line => line.occurredAt < cutAt)
+      .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))
+
+    const invoice: Invoice = {
+      id: `inv-${pad(invoices.length + 1)}` as InvoiceId,
+      enrolmentId: enrolment.id,
+      reference: `${cutAt.slice(0, 4)}-${pad(invoices.length + 1).padStart(4, '0')}`,
+      createdAt: cutAt,
+      state: { status: 'draft' },
+      lines,
+      total: totalOf(lines),
+    }
+
+    invoices.push(invoice)
+    return invoice
+  }
+
+  function issue(invoice: Invoice, issuedDaysAgo: number): Invoice {
+    const issuedAt = daysFromNow(now, issuedDaysAgo)
+
+    invoice.state = {
+      status: 'issued',
+      issuedAt,
+      dueAt: addMinutes(issuedAt, DEFAULT_PAYMENT_TERM_DAYS * MINUTES_PER_DAY),
+    }
+
+    return invoice
+  }
+
+  function pay(
+    invoice: Invoice,
+    share: number,
+    method: PaymentMethod,
+    receivedDaysAgo: number,
+  ): void {
+    payments.push({
+      id: `pay-${pad(payments.length + 1)}` as PaymentId,
+      enrolmentId: invoice.enrolmentId,
+      invoiceId: invoice.id,
+      receivedAt: daysFromNow(now, receivedDaysAgo),
+      amount: multiplyMoney(invoice.total, share),
+      method,
+      reference: `Rechnung ${invoice.reference}`,
+    })
+  }
+
+  // Tim passed last year and paid up: the settled history a balance screen must show as zero.
+  pay(issue(draft('enr-04', -320), -318), 1, 'bankTransfer', -300)
+
+  // Jonas paused his training owing money — the school's oldest debt, and well past due.
+  issue(draft('enr-02', -60), -58)
+
+  // Lena is mid-training, half paid, still inside her payment terms.
+  pay(issue(draft('enr-01', -10), -9), 0.5, 'bankTransfer', -4)
+
+  // Yusuf's truck training is expensive and he pays it down in instalments.
+  const yusuf = issue(draft('enr-09', -30), -29)
+  pay(yusuf, 0.3, 'bankTransfer', -25)
+  pay(yusuf, 0.3, 'bankTransfer', -3)
+
+  // Elias's bill is drafted but unsent: money the school has earned and not yet asked for.
+  draft('enr-06', -2)
+
+  // Hannah paid a deposit at the counter before anything was invoiced. It sits on account.
+  payments.push({
+    id: `pay-${pad(payments.length + 1)}` as PaymentId,
+    enrolmentId: 'enr-07' as EnrolmentId,
+    invoiceId: null,
+    receivedAt: daysFromNow(now, -45),
+    amount: fromEuros(300),
+    method: 'cash',
+    reference: 'Anzahlung, Quittung 118',
+  })
+
+  return { invoices, payments }
+}
+
+function daysFromNow(now: Date, days: number): IsoDateTime {
+  return toIsoDateTime(new Date(now.getTime() + days * MINUTES_PER_DAY * 60_000))
+}
+
 // --- Small builders --------------------------------------------------------------------------
 
 function student(
@@ -346,12 +535,15 @@ function enrolment(
   startedOn: string | null,
   closedOn: string | null,
 ): Enrolment {
+  const enquiredAt = `${enquiredOn}T09:00:00.000Z` as IsoDateTime
+
   return {
     id: id as EnrolmentId,
     studentId: studentId as StudentId,
     licenceClass,
     status,
-    enquiredAt: `${enquiredOn}T09:00:00.000Z` as IsoDateTime,
+    agreedPrices: agreedPricesFor(licenceClass, enquiredAt),
+    enquiredAt,
     startedAt: startedOn === null ? null : `${startedOn}T09:00:00.000Z` as IsoDateTime,
     closedAt: closedOn === null ? null : `${closedOn}T09:00:00.000Z` as IsoDateTime,
   }
@@ -400,6 +592,8 @@ function pad(value: number): string {
  */
 export function seedDatabase(now: Date = new Date()): Database {
   const monday = mondayOf(now)
+  const appointments = buildAppointments(monday, now)
+  const { invoices, payments } = buildFinance(ENROLMENTS, appointments, now)
 
   return {
     locations: [...LOCATIONS],
@@ -408,6 +602,8 @@ export function seedDatabase(now: Date = new Date()): Database {
     students: [...STUDENTS],
     enrolments: [...ENROLMENTS],
     offerings: buildOfferings(),
-    appointments: buildAppointments(monday, now),
+    appointments,
+    invoices,
+    payments,
   }
 }

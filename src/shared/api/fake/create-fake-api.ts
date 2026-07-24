@@ -5,6 +5,7 @@ import type { Database } from './database'
 import type { FakeNetwork, FakeNetworkOptions } from './network'
 import type { IsoDateTime } from '@/shared/domain'
 import { createAppointmentRepository } from './appointments.fake'
+import { createBillingRepository } from './billing.fake'
 import { clearDatabase } from './database'
 import { createEnrolmentRepository } from './enrolments.fake'
 import { nowIso } from './fake.utils'
@@ -69,6 +70,7 @@ export function createFakeApi(db: Database, options: FakeApiOptions = {}): FakeA
     students: createStudentRepository(ctx),
     enrolments: createEnrolmentRepository(ctx),
     appointments: createAppointmentRepository(ctx),
+    billing: createBillingRepository(ctx),
     instructors: createInstructorRepository(ctx),
     vehicles: createVehicleRepository(ctx),
     locations: createLocationRepository(ctx),

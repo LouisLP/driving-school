@@ -5,7 +5,8 @@ what it teaches them in, and when that happens. One context — CRM, scheduling 
 speak the same language and share the same entities.
 
 The relationships, cardinalities and lifecycles behind these terms are in
-[docs/domain-model.md](./docs/domain-model.md). This file is the glossary and nothing else.
+[docs/domain-model.md](./docs/domain-model.md); the money ones in
+[docs/money-model.md](./docs/money-model.md). This file is the glossary and nothing else.
 
 ## People
 
@@ -34,8 +35,8 @@ they are called.
 _Avoid_: Licence type, category, class, permit
 
 **Licence Class Offering**:
-The school's own configuration for one licence class — whether it is currently taught, and the
-minimum training it requires. Belongs to the school, not to any student.
+The school's own configuration for one licence class — whether it is currently taught, the minimum
+training it requires, and what it costs. Belongs to the school, not to any student.
 _Avoid_: Course, programme, product
 
 **Enrolment**:
@@ -76,6 +77,55 @@ _Avoid_: Participant, attendee record, registration
 A practical appointment of a legally-mandated type — overland, autobahn or night — as opposed to
 a standard drive. Counted separately toward an enrolment's requirements.
 _Avoid_: Sonderfahrt, mandatory drive, special lesson
+
+## Money
+
+**Money**:
+An amount, held as a whole number of euro cents. The school trades in euros only, so the currency
+is a constant read at the formatting edge rather than a field on every amount.
+_Avoid_: Amount, price (as the general term), cents, total
+
+**Price List**:
+What the school charges for one licence class: a basic fee, a price per 45-minute lesson unit, a
+price per special-drive unit, and a fee for presenting a student at each exam. Configuration, held
+on the licence class offering.
+_Avoid_: Tariff, rate card, pricing, fees
+
+**Agreed Prices**:
+The copy of a price list an enrolment was signed up at, frozen for its lifetime. Later price rises
+apply to new enrolments only, so an invoice never reprices training already delivered.
+_Avoid_: Quote, contract price, locked price, price snapshot
+
+**Billable Item**:
+One chargeable thing that happened, priced and not yet billed — a completed lesson, a no-show, a
+late cancellation, an exam, or the basic fee itself. Computed from the calendar, never stored.
+_Avoid_: Charge, fee, billing entry, transaction
+
+**Invoice**:
+A bill for one enrolment: frozen lines, a total, and a state of draft, issued or void. Never
+edited once issued — a wrong bill is voided and redrawn.
+_Avoid_: Bill, receipt, statement, Rechnung
+
+**Invoice Line**:
+One billable item as copied onto an invoice, carrying why it was charged, how many units, and at
+what unit price.
+_Avoid_: Line item, entry, position, row
+
+**Payment**:
+Money received, recorded against an enrolment and usually against one invoice. A payment naming no
+invoice is money taken on account, and is spread across invoices oldest due date first.
+_Avoid_: Transaction, receipt, settlement, deposit (as the general term)
+
+**Balance**:
+What an enrolment or a student owes: what has been invoiced, what has been paid, what is
+outstanding, what is overdue, and what has been delivered but not yet billed. Computed from
+invoices and payments, never stored.
+_Avoid_: Account, ledger, debt, statement
+
+**Debtor**:
+A student whose balance is outstanding across all their enrolments. The finance list, sorted by
+who is furthest past due.
+_Avoid_: Defaulter, late payer, arrears, outstanding customer
 
 ## Assets
 
