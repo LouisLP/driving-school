@@ -45,12 +45,19 @@ const isComplete = computed(() => isMeasurable.value && props.value >= props.max
 .progress {
   display: block;
   overflow: hidden;
+
   inline-size: 100%;
   block-size: var(--space-xs);
   border-radius: var(--radius-pill);
   background: var(--surface-sunken);
 }
 
+/*
+ * Flat accent, not `--accent-gradient`. Tried and rejected: sized to the fill, a 20 % bar
+ * compresses the whole sweep into 40px of noise; sized to the track, a 20 % bar shows only the
+ * blue end and reads as a different colour from a full one. Progress is the wrong place for a
+ * gradient — the length is the information, and the colour has to stay constant for that to read.
+ */
 .progress__bar {
   display: block;
   block-size: 100%;

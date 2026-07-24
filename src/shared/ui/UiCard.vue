@@ -59,6 +59,11 @@ defineSlots<{
   gap: var(--space-sm);
 }
 
+/*
+ * An uppercase eyebrow, so it stays the display face's job — Clash Display in caps at 14px is a
+ * label with a voice, where the same face at a heading size here would compete with the page `h1`.
+ * The `base` layer sets `--font-display` on `h2`/`h3` already; this only pins the rest.
+ */
 .card__title {
   display: flex;
   align-items: center;
@@ -69,6 +74,17 @@ defineSlots<{
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+/* An accent tick before the label. The one bit of colour on an otherwise plain panel header, and
+   what makes a column of six cards scan as six things rather than one long page. */
+.card__title::before {
+  content: "";
+  flex: none;
+  inline-size: var(--space-3xs);
+  block-size: 0.85em;
+  border-radius: var(--radius-pill);
+  background: var(--accent-gradient);
 }
 
 .card__actions {

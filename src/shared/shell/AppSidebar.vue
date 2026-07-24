@@ -73,6 +73,15 @@ const { activeItem } = useShell()
   grid-template-rows: auto minmax(0, 1fr) auto;
   border-inline-end: var(--border-width-hairline) solid var(--border-subtle);
   background: var(--surface-raised);
+
+  /* The brand colour, bled in from the top corner and gone by a third of the way down. It is what
+     stops a 16rem column of grey links from being the first thing anyone sees. */
+  background-image: linear-gradient(
+    180deg,
+    light-dark(var(--violet-100), var(--violet-950)) 0%,
+    transparent 30%
+  );
+  background-repeat: no-repeat;
 }
 
 .brand {
@@ -90,15 +99,28 @@ const { activeItem } = useShell()
   inline-size: 2.25rem;
   block-size: 2.25rem;
   border-radius: var(--radius-card);
-  background: var(--accent-solid);
+  background: var(--accent-gradient);
+  box-shadow: var(--accent-glow);
   color: var(--text-on-solid);
   font-size: var(--text-lg);
+  transition: transform var(--transition-base) var(--easing-emphasized);
+}
+
+.brand:hover .brand__mark {
+  transform: rotate(-6deg) scale(1.06);
 }
 
 .brand__text {
   display: flex;
   flex-direction: column;
   line-height: var(--leading-tight);
+}
+
+.brand__text strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .brand__text small {
@@ -135,6 +157,7 @@ const { activeItem } = useShell()
 }
 
 .nav__link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -144,7 +167,9 @@ const { activeItem } = useShell()
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   text-decoration: none;
-  transition: background var(--transition-instant) var(--easing-standard);
+  transition:
+    background var(--transition-instant) var(--easing-standard),
+    color var(--transition-instant) var(--easing-standard);
 }
 
 .nav__link:hover {
@@ -155,11 +180,40 @@ const { activeItem } = useShell()
 .nav__link.is-active {
   background: var(--surface-selected);
   color: var(--accent-text);
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * A solid rail on the leading edge of the active item. The tinted fill alone is easy to miss on a
+ * bright screen; the rail is the part that survives at a glance.
+ *
+ * `--border-accent` and not `--accent-solid`, and not the gradient: those land at ~2.8:1 against
+ * the selected surface in dark mode. `--border-accent` is the role that exists to clear 3:1 as a
+ * non-text mark in both schemes, which is exactly what this is.
+ */
+.nav__link.is-active::before {
+  content: "";
+  position: absolute;
+  inset-block: 20%;
+  inset-inline-start: 0;
+  inline-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--border-accent);
 }
 
 .nav__icon {
   flex: none;
   font-size: var(--text-lg);
+  color: var(--text-muted);
+  transition: color var(--transition-instant) var(--easing-standard);
+}
+
+.nav__link:hover .nav__icon {
+  color: var(--text-secondary);
+}
+
+.nav__link.is-active .nav__icon {
+  color: var(--border-accent);
 }
 
 .nav__sublist {

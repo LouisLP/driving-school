@@ -58,7 +58,6 @@ const classOptions = computed<UiSelectOption<LicenceClass>[]>(() => [
 
     <UiSelect
       v-model="standing"
-      class="filters__select"
       :options="standingOptions"
       :aria-label="t('students.filters.standing')"
       :placeholder="t('students.filters.standing')"
@@ -66,7 +65,6 @@ const classOptions = computed<UiSelectOption<LicenceClass>[]>(() => [
 
     <UiSelect
       v-model="licenceClass"
-      class="filters__select"
       :options="classOptions"
       :aria-label="t('students.filters.licenceClass')"
       :placeholder="t('students.filters.licenceClass')"
@@ -86,14 +84,21 @@ const classOptions = computed<UiSelectOption<LicenceClass>[]>(() => [
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs);
+
+  /*
+   * `UiSelect`'s sizing knob, set on the row rather than on each select.
+   *
+   * It cannot be set on the selects themselves: `UiSelect`'s root is Reka's renderless
+   * `SelectRoot`, so there is no element for this component's scope id to land on, and a scoped
+   * `.filters__select { … }` rule compiles to a selector that matches nothing. Both filters want
+   * the same width anyway, and inheritance carries it down. A select that wanted a different one
+   * would pass `style="--select-inline-size: …"`, which reaches the trigger through `$attrs`.
+   */
+  --select-inline-size: 10rem;
 }
 
 .filters__search {
   inline-size: 20rem;
   max-inline-size: 100%;
-}
-
-.filters__select {
-  inline-size: 10rem;
 }
 </style>

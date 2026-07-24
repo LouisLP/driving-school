@@ -16,7 +16,9 @@ const t = useT()
 
 <template>
   <div class="placeholder">
-    <Icon icon="lucide:hard-hat" class="placeholder__icon" />
+    <span class="placeholder__icon" aria-hidden="true">
+      <Icon icon="lucide:hard-hat" />
+    </span>
     <p>{{ t(bodyKey) }}</p>
   </div>
 </template>
@@ -27,14 +29,24 @@ const t = useT()
   place-items: center;
   gap: var(--space-sm);
   padding: var(--space-3xl) var(--space-lg);
-  border: var(--border-width-hairline) dashed var(--border-default);
+  border: var(--border-width-hairline) dashed var(--accent-border);
   border-radius: var(--radius-card);
+
+  /* Faint enough to read as "not built yet" rather than as a real surface, but coloured, so an
+     unbuilt section still looks like part of this app. */
+  background: var(--accent-wash);
   color: var(--text-muted);
   text-align: center;
 }
 
 .placeholder__icon {
-  font-size: var(--text-3xl);
-  color: var(--text-disabled);
+  display: grid;
+  place-items: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+  font-size: var(--text-xl);
 }
 </style>

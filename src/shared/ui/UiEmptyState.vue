@@ -20,7 +20,9 @@ withDefaults(defineProps<{
 
 <template>
   <div class="empty">
-    <Icon :icon="icon" class="empty__icon" aria-hidden="true" />
+    <span class="empty__icon" aria-hidden="true">
+      <Icon :icon="icon" />
+    </span>
 
     <p class="empty__title">
       {{ title }}
@@ -46,13 +48,27 @@ withDefaults(defineProps<{
   text-align: center;
 }
 
+/*
+ * The icon sits in a tinted disc rather than floating grey on the page. An empty state is the one
+ * screen with nothing else on it, so it is the one place worth spending colour on: a bare grey
+ * glyph reads as "this failed to load", a coloured mark reads as "this is a state".
+ */
 .empty__icon {
-  font-size: var(--text-3xl);
-  color: var(--text-placeholder);
+  display: grid;
+  place-items: center;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  margin-block-end: var(--space-2xs);
+  border-radius: var(--radius-full);
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+  font-size: var(--text-2xl);
 }
 
 .empty__title {
-  font-weight: var(--weight-medium);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
 }
 
 .empty__description {

@@ -89,11 +89,32 @@ withDefaults(defineProps<{
   cursor: progress;
 }
 
+/*
+ * The primary button is a flat accent fill with `--accent-sheen` over it — a top light, not a hue
+ * sweep. The sweep was tried and pulled: a gradient on every filled control is a period detail,
+ * and this is the one component repeated on every screen in the app.
+ *
+ * `background-image` over the `background-color` the variant already sets, not instead of it, so
+ * the disabled and busy rules below — which only set `background` — still land on a flat accent
+ * rather than fighting a layer they do not know about.
+ */
 .button[data-variant="primary"] {
   --_surface: var(--accent-solid);
   --_surface-hover: var(--accent-solid-hover);
   --_text: var(--text-on-solid);
   --_border: transparent;
+
+  background-image: var(--accent-sheen);
+}
+
+/* The colour underneath does the darkening — `--_surface-hover` is a real step down the ramp — so
+   the sheen just rides along and no tint layer is needed. */
+.button[data-variant="primary"]:active:not(:disabled) {
+  background-color: var(--accent-solid-active);
+}
+
+.button[data-variant="primary"]:disabled {
+  background-image: none;
 }
 
 .button[data-variant="danger"] {

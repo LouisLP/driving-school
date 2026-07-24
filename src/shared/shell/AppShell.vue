@@ -143,6 +143,14 @@ watch(pageTitle, (title) => {
   color: var(--text-secondary);
   font-size: var(--text-lg);
   cursor: pointer;
+  transition:
+    background var(--transition-instant) var(--easing-standard),
+    color var(--transition-instant) var(--easing-standard);
+}
+
+.topbar__menu:hover {
+  background: var(--accent-subtle);
+  color: var(--accent-text);
 }
 
 .topbar__search {
@@ -155,6 +163,21 @@ watch(pageTitle, (title) => {
   border-radius: var(--radius-pill);
   background: var(--field-surface);
   color: var(--text-muted);
+  transition:
+    border-color var(--transition-instant) var(--easing-standard),
+    box-shadow var(--transition-instant) var(--easing-standard);
+}
+
+/*
+ * The ring goes on the wrapper because the wrapper is what looks like the field — the `<input>`
+ * inside it is borderless and its own focus ring would draw inside the pill. The inner input drops
+ * its outline for exactly this reason (`outline: none` below), so this rule owes it a replacement
+ * and this is it.
+ */
+.topbar__search:focus-within {
+  border-color: var(--field-border-focus);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--accent-subtle);
+  color: var(--accent-text);
 }
 
 .topbar__search input {

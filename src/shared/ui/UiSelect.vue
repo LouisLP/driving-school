@@ -34,6 +34,19 @@ export interface UiSelectOption<TValue extends string> {
   disabled?: boolean
 }
 
+/**
+ * `SelectRoot` is renderless — it is a provider, not an element — so anything a caller passes
+ * through (a `style`, a `data-*`) would fall through to nothing and silently vanish. Routing
+ * `$attrs` to the trigger by hand puts them on the element a caller means when they say "this
+ * select"; Vue merges an incoming `class` with the local one rather than replacing it.
+ *
+ * A scoped CLASS still cannot reach in — there is no root element for the caller's scope id to
+ * land on either, which is what made `StudentFilters`' `.filters__select` rule dead CSS and left
+ * both filter selects stretching across the row. Sizing therefore goes through
+ * `--select-inline-size`, which inherits and does not care about scope ids.
+ */
+defineOptions({ inheritAttrs: false })
+
 const props = defineProps<{
   options: readonly UiSelectOption<T>[]
   id?: string
@@ -67,6 +80,7 @@ const label = computed(() =>
 <template>
   <SelectRoot v-model="selected" :disabled="disabled">
     <SelectTrigger
+      v-bind="$attrs"
       :id="id"
       class="trigger"
       :aria-label="ariaLabel"
@@ -104,12 +118,20 @@ const label = computed(() =>
 </template>
 
 <style scoped>
+/*
+ * `--select-inline-size` is how a caller sizes this control, and the reason it is a knob rather
+ * than something a caller sets with a class of their own: both rules would be one class deep, so
+ * which one won would come down to which component's stylesheet the bundler emitted last. A custom
+ * property inherits into here and settles it.
+ *
+ * Full width by default — in a form field that is what is wanted, and it is the common case.
+ */
 .trigger {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-xs);
-  inline-size: 100%;
+  inline-size: var(--select-inline-size, 100%);
   min-inline-size: 0;
   padding: var(--padding-control-block) var(--padding-control-inline);
   border: var(--border-width-hairline) solid var(--field-border);
