@@ -5,6 +5,7 @@
   },
   "actions": {
     "cancel": "Abbrechen",
+    "close": "Schließen",
     "delete": "Löschen",
     "retry": "Erneut versuchen",
     "save": "Speichern",
@@ -18,6 +19,14 @@
     "network": "Server nicht erreichbar",
     "notFound": "Nicht gefunden",
     "validation": "Bitte die markierten Felder prüfen"
+  },
+  "form": {
+    "required": "Pflichtfeld",
+    "optional": "Optional",
+    "discardTitle": "Änderungen verwerfen?",
+    "discardBody": "Dieses Formular enthält ungespeicherte Änderungen. Beim Schließen gehen sie verloren.",
+    "discardConfirm": "Änderungen verwerfen",
+    "keepEditing": "Weiter bearbeiten"
   },
   "locale": {
     "label": "Sprache",
@@ -39,19 +48,38 @@
     "description": "Zu dieser Adresse gibt es in der Verwaltung nichts.",
     "action": "Zurück zur Übersicht"
   },
+  "pagination": {
+    "label": "Seiten",
+    "previous": "Vorherige Seite",
+    "next": "Nächste Seite",
+    "page": "Seite {page}",
+    "morePages": "Weitere Seiten"
+  },
   "search": {
     "placeholder": "Fahrschüler, Fahrlehrer, Fahrzeuge suchen…"
+  },
+  "select": {
+    "placeholder": "Auswählen…"
   },
   "states": {
     "empty": "Noch nichts vorhanden",
     "error": "Etwas ist schiefgelaufen",
     "loading": "Wird geladen…"
   },
+  "table": {
+    "sortBy": "Nach {column} sortieren",
+    "sortedAscending": "aufsteigend sortiert",
+    "sortedDescending": "absteigend sortiert"
+  },
   "theme": {
     "label": "Darstellung",
     "system": "System",
     "light": "Hell",
     "dark": "Dunkel"
+  },
+  "toast": {
+    "label": "Benachrichtigungen",
+    "close": "Schließen"
   },
   "validation": {
     "dateInFuture": "Darf nicht in der Zukunft liegen",

@@ -9,6 +9,7 @@ import type {
   InstructorId,
   IsoDateTime,
   PracticalAppointment,
+  StudentId,
   TheoryAppointment,
   VehicleId,
 } from '@/shared/domain'
@@ -28,6 +29,8 @@ export interface AppointmentQuery {
   kind?: AppointmentKind
   /** Everything on one student's training record. */
   enrolmentId?: EnrolmentId
+  /** Every appointment across every enrolment this student holds. */
+  studentId?: StudentId
 }
 
 /**

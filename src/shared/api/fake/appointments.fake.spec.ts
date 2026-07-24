@@ -4,6 +4,7 @@ import type {
   EnrolmentId,
   InstructorId,
   IsoDateTime,
+  StudentId,
   VehicleId,
 } from '@/shared/domain'
 import { describe, expect, it } from 'vitest'
@@ -168,5 +169,41 @@ describe('appointment repository', () => {
 
     expect(failure?.kind).toBe('conflict')
     expect(first.startsAt).toBe(SLOT)
+  })
+})
+
+describe('the studentId filter', () => {
+  /** A window wide enough to cover the whole seeded calendar, past and future. */
+  const WHOLE_SEED = {
+    from: '2020-01-01T00:00:00.000Z' as IsoDateTime,
+    to: '2040-01-01T00:00:00.000Z' as IsoDateTime,
+  }
+
+  it('gathers every appointment across every enrolment the student holds', async () => {
+    const api = createApi()
+
+    // stu-07 trains for B and has enquired about BE; the B enrolment is the one with a calendar.
+    const forStudent = await api.appointments.list({ ...WHOLE_SEED, studentId: 'stu-07' as StudentId })
+    const forEnrolment = await api.appointments.list({
+      ...WHOLE_SEED,
+      enrolmentId: 'enr-07' as EnrolmentId,
+    })
+
+    expect(forStudent.length).toBeGreaterThan(0)
+    expect(forStudent.map(it => it.id)).toEqual(forEnrolment.map(it => it.id))
+  })
+
+  it('includes the theory rooms the student sits in, not only their own lessons', async () => {
+    const api = createApi()
+
+    const found = await api.appointments.list({ ...WHOLE_SEED, studentId: 'stu-01' as StudentId })
+
+    expect(found.some(it => it.kind === 'theory')).toBe(true)
+  })
+
+  it('answers a student with no enrolments with nothing at all', async () => {
+    const api = createApi()
+
+    expect(await api.appointments.list({ ...WHOLE_SEED, studentId: 'stu-09' as StudentId })).toEqual([])
   })
 })

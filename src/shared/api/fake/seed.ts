@@ -238,7 +238,9 @@ const STUDENTS: readonly Student[] = [
   student('stu-06', 'Elias', 'Becker', '2002-05-09', '2026-01-15'),
   student('stu-07', 'Hannah', 'Hoffmann', '2007-09-28', '2025-11-30'),
   student('stu-08', 'Yusuf', 'Şahin', '1998-12-03', '2026-02-09'),
-  student('stu-09', 'Clara', 'Schäfer', '2008-06-21', '2026-07-20'),
+  // The walk-in who left a phone number and nothing else. Both empty states the contact column
+  // and the identity panel have to render honestly, on one row.
+  withoutContactDetails(student('stu-09', 'Clara', 'Schäfer', '2008-06-21', '2026-07-20')),
   student('stu-10', 'Noah', 'Bauer', '2001-04-14', '2024-03-05'),
 ]
 
@@ -369,7 +371,81 @@ function buildAppointments(monday: Date, now: Date): Appointment[] {
     notes: 'Prüfer trifft am Ostbahnhof ein.',
   }
 
-  return [...practicals, theory, exam]
+  return [...practicals, theory, exam, ...buildHistory(monday)]
+}
+
+/**
+ * The back-catalogue, months before the current week.
+ *
+ * The rows above give the planner a week to render; these give the student record something to
+ * measure. Without them every progress bar on every card sits near zero, and the two states the
+ * card is designed around — past the minimum, and barely started — cannot be seen at all.
+ *
+ * Lena (`enr-01`) ends up past class B's standard-lesson policy, partway through the basic theory
+ * course, short on every mandated special drive and with her theory exam passed — so her card has
+ * a bar over 100 %, several under it, and one readiness group met and one not. Yusuf (`enr-09`) is
+ * left with the two lessons of the current week, which is what "barely started" looks like.
+ */
+function buildHistory(monday: Date): Appointment[] {
+  const drives: Appointment[] = Array.from({ length: 13 }, (_, index) => {
+    const startsAt = at(monday, -12 - index * 2, 10)
+
+    return {
+      id: `apt-h${pad(index + 1)}` as AppointmentId,
+      kind: 'practical',
+      instructorId: VOGEL,
+      vehicleId: GOLF,
+      enrolmentId: 'enr-01' as EnrolmentId,
+      driveType: 'standard',
+      meetingPointId: null,
+      startsAt,
+      durationMinutes: 45,
+      outcome: { status: 'completed', completedAt: startsAt },
+      notes: '',
+    }
+  })
+
+  // Hannah misses the second half of the course; one absence is what makes the attendance rule
+  // worth having rather than a count of rows.
+  const theory: Appointment[] = Array.from({ length: 7 }, (_, index) => {
+    const startsAt = at(monday, -11 - index * 7, 18)
+
+    return {
+      id: `apt-th${pad(index + 1)}` as AppointmentId,
+      kind: 'theory',
+      instructorId: LEHMANN,
+      locationId: CLASSROOM,
+      topic: { scope: 'basic', number: index + 1 },
+      capacity: 12,
+      attendees: [
+        attendance('enr-01', 'attended'),
+        attendance('enr-07', index < 4 ? 'attended' : 'absent'),
+        attendance('enr-02', 'attended'),
+      ],
+      startsAt,
+      durationMinutes: 90,
+      outcome: { status: 'completed', completedAt: startsAt },
+      notes: '',
+    }
+  })
+
+  const theoryExamAt = at(monday, -9, 9)
+
+  const theoryExam: Appointment = {
+    id: 'apt-hx1' as AppointmentId,
+    kind: 'exam',
+    examKind: 'theory',
+    instructorId: VOGEL,
+    locationId: EXAM_CENTRE,
+    enrolmentId: 'enr-01' as EnrolmentId,
+    result: 'passed',
+    startsAt: theoryExamAt,
+    durationMinutes: 60,
+    outcome: { status: 'completed', completedAt: theoryExamAt },
+    notes: '',
+  }
+
+  return [...drives, ...theory, theoryExam]
 }
 
 /**
@@ -531,6 +607,11 @@ function student(
     notes: '',
     registeredAt: `${registeredOn}T09:00:00.000Z` as IsoDateTime,
   }
+}
+
+/** Not every student leaves an email. `null` is the domain's way of saying so; `''` is not. */
+function withoutContactDetails(person: Student): Student {
+  return { ...person, email: null, address: null }
 }
 
 function enrolment(

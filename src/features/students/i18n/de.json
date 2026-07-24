@@ -4,13 +4,43 @@
   "list": {
     "title": "Alle Fahrschüler",
     "empty": "Noch keine Fahrschüler",
-    "count": "{count} Fahrschüler | {count} Fahrschüler"
+    "count": "{count} Fahrschüler | {count} Fahrschüler",
+    "searchLabel": "Fahrschüler suchen",
+    "searchPlaceholder": "Name oder E-Mail suchen"
+  },
+  "filters": {
+    "standing": "Stand",
+    "licenceClass": "Klasse",
+    "any": "Alle",
+    "clear": "Filter zurücksetzen"
+  },
+  "empty": {
+    "none": "Noch keine Fahrschüler",
+    "noneBody": "Den ersten anlegen — danach füllt sich die Liste von selbst.",
+    "noMatch": "Keine Fahrschüler passen zu diesen Filtern",
+    "noMatchBody": "Kürzer suchen oder die Filter zurücksetzen und neu anfangen."
+  },
+  "error": {
+    "list": "Die Fahrschülerliste konnte nicht geladen werden",
+    "record": "Dieser Fahrschüler konnte nicht geladen werden",
+    "account": "Der Kontostand konnte nicht geladen werden",
+    "enrolments": "Die Ausbildungen konnten nicht geladen werden"
+  },
+  "columns": {
+    "actions": "Aktionen"
   },
   "detail": {
-    "title": "Fahrschüler"
-  },
-  "actions": {
-    "create": "Neuer Fahrschüler"
+    "title": "Fahrschüler",
+    "identity": "Person",
+    "account": "Konto",
+    "enrolments": "Ausbildungen",
+    "noEnrolments": "Noch keine Ausbildung",
+    "noEnrolmentsBody": "Aus einer Anfrage wird eine Ausbildung, sobald es eine Ausbildung gibt, an der sie hängt.",
+    "outstanding": "Offen",
+    "overdue": "Überfällig",
+    "uninvoiced": "Noch nicht berechnet",
+    "viewInFinances": "In Finanzen ansehen",
+    "age": "{years} Jahre alt"
   },
   "fields": {
     "firstName": "Vorname",
@@ -18,6 +48,15 @@
     "name": "Name",
     "contact": "Kontakt",
     "dateOfBirth": "Geburtsdatum",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "address": "Anschrift",
+    "street": "Straße",
+    "houseNumber": "Nr.",
+    "postalCode": "PLZ",
+    "city": "Ort",
+    "countryCode": "Land",
+    "notes": "Notizen",
     "standing": "Stand",
     "registeredAt": "Angemeldet",
     "licenceClass": "Führerscheinklasse"
@@ -27,5 +66,118 @@
     "active": "Aktiv",
     "alumnus": "Ehemalig",
     "lapsed": "Ruhend"
+  },
+  "enrolment": {
+    "status": {
+      "label": "Status",
+      "change": "Status ändern",
+      "enquiring": "Anfrage",
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "passed": "Bestanden",
+      "withdrawn": "Abgebrochen"
+    },
+    "dates": {
+      "enquired": "angefragt {date}",
+      "started": "begonnen {date}",
+      "closed": "abgeschlossen {date}"
+    },
+    "progress": {
+      "standard": "Übungsstunden",
+      "theory": "Theorie",
+      "specialDrives": "Sonderfahrten",
+      "count": "{completed} / {required}",
+      "booked": "{count} noch gebucht"
+    },
+    "requirement": {
+      "standardPractical": "Übungsstunden",
+      "overlandDrive": "Überland",
+      "autobahnDrive": "Autobahn",
+      "nightDrive": "Nacht",
+      "basicTheory": "Grundstoff",
+      "classSpecificTheory": "Zusatzstoff",
+      "theoryExamPassed": "Theorieprüfung bestanden"
+    },
+    "readiness": {
+      "label": "Prüfungsreife",
+      "theory": "Theorieprüfung",
+      "practical": "Praktische Prüfung",
+      "ready": "bereit",
+      "short": "{count} fehlen",
+      "advisory": "Richtwert. Wann jemand vorgestellt wird, entscheidet die Fahrschule."
+    },
+    "exams": {
+      "label": "Prüfungen",
+      "notSat": "nicht angetreten",
+      "passed": "{exam} bestanden",
+      "failed": "{exam} nicht bestanden",
+      "awaitingResult": "{exam} abgelegt, noch kein Ergebnis"
+    },
+    "balance": {
+      "label": "Konto",
+      "outstanding": "{amount} offen",
+      "uninvoiced": "{amount} noch nicht berechnet",
+      "settled": "Nichts offen"
+    },
+    "next": {
+      "label": "Nächster Termin",
+      "noneBooked": "Nichts gebucht"
+    },
+    "recent": {
+      "label": "Zuletzt",
+      "summary": "Die letzten {count} Termine",
+      "none": "Bisher ist nichts passiert"
+    }
+  },
+  "appointmentKind": {
+    "practical": "Praxis",
+    "theory": "Theorie",
+    "exam": "Prüfung"
+  },
+  "appointmentStatus": {
+    "planned": "Geplant",
+    "completed": "Stattgefunden",
+    "cancelled": "Abgesagt",
+    "noShow": "Nicht erschienen"
+  },
+  "actions": {
+    "create": "Neuer Fahrschüler",
+    "edit": "Bearbeiten",
+    "delete": "Fahrschüler löschen",
+    "newEnrolment": "Neue Ausbildung",
+    "recordPayment": "Zahlung erfassen",
+    "more": "Weitere Aktionen"
+  },
+  "form": {
+    "createTitle": "Neuer Fahrschüler",
+    "editTitle": "Fahrschüler bearbeiten",
+    "addressLegend": "Anschrift",
+    "notesHint": "Was das Büro wissen sollte. Sieht nur das Personal.",
+    "submitCreate": "Fahrschüler anlegen",
+    "submitEdit": "Änderungen speichern",
+    "created": "{name} angelegt",
+    "updated": "{name} gespeichert"
+  },
+  "delete": {
+    "title": "Diesen Fahrschüler löschen?",
+    "body": "{name} wird entfernt. Das lässt sich nicht rückgängig machen.",
+    "hasEnrolments": "Wer hier ausgebildet wurde, gehört zur Geschichte der Fahrschule. Stattdessen die Ausbildungen abbrechen.",
+    "deleted": "{name} gelöscht"
+  },
+  "newEnrolment": {
+    "title": "Neue Ausbildung",
+    "licenceClass": "Führerscheinklasse",
+    "noneAvailable": "Dieser Fahrschüler hat bereits in jeder angebotenen Klasse eine laufende Ausbildung.",
+    "pricesTitle": "Preise für diese Ausbildung",
+    "pricesNote": "Diese Preise werden beim Anlegen festgeschrieben. Eine spätere Preiserhöhung ändert sie nicht.",
+    "submit": "Ausbildung anlegen",
+    "created": "Ausbildung für Klasse {licenceClass} angelegt"
+  },
+  "prices": {
+    "basicFee": "Grundbetrag",
+    "practicalLessonUnit": "Übungsstunde, je Einheit",
+    "specialDriveUnit": "Sonderfahrt, je Einheit",
+    "theoryExamFee": "Theorieprüfung",
+    "practicalExamFee": "Praktische Prüfung"
   }
 }

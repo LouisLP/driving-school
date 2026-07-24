@@ -5,6 +5,7 @@
  * Written model: `docs/domain-model.md`. Glossary: `CONTEXT.md`.
  */
 export * from './address.types'
+export * from './address.utils'
 export * from './appointment.types'
 export * from './appointment.utils'
 export * from './billing.constants'
@@ -12,6 +13,7 @@ export * from './billing.types'
 export * from './billing.utils'
 export * from './brand.types'
 export * from './enrolment.types'
+export * from './enrolment.utils'
 export * from './identifier.types'
 export * from './instructor.types'
 export * from './licence-class.constants'

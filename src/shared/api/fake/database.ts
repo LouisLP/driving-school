@@ -37,7 +37,7 @@ export const SNAPSHOT_KEY = 'driving-school/db'
  * is discarded and reseeded rather than migrated — this is seeded demo data, and a migration path
  * would be ceremony protecting nothing.
  */
-export const SNAPSHOT_VERSION = 2
+export const SNAPSHOT_VERSION = 3
 
 interface Snapshot extends Database {
   version: number

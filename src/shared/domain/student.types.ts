@@ -28,5 +28,11 @@ export interface Student {
  * - `active` — training, or temporarily paused
  * - `alumnus` — has passed something and has nothing running
  * - `lapsed` — every enrolment was withdrawn
+ *
+ * Written as a const array so the four are enumerable: a filter that offers the standings, and a
+ * badge that maps each to a tone, both need the list, and deriving it from the type is not
+ * possible. In lifecycle order — where someone starts, through to where they stop.
  */
-export type StudentStanding = 'prospect' | 'active' | 'alumnus' | 'lapsed'
+export const STUDENT_STANDINGS = ['prospect', 'active', 'alumnus', 'lapsed'] as const
+
+export type StudentStanding = typeof STUDENT_STANDINGS[number]

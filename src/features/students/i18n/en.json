@@ -4,13 +4,43 @@
   "list": {
     "title": "All students",
     "empty": "No students yet",
-    "count": "{count} student | {count} students"
+    "count": "{count} student | {count} students",
+    "searchLabel": "Search students",
+    "searchPlaceholder": "Search name or email"
+  },
+  "filters": {
+    "standing": "Standing",
+    "licenceClass": "Class",
+    "any": "Any",
+    "clear": "Clear filters"
+  },
+  "empty": {
+    "none": "No students yet",
+    "noneBody": "Add the first one, and the list fills itself in.",
+    "noMatch": "No students match these filters",
+    "noMatchBody": "Try a shorter search, or clear the filters and start again."
+  },
+  "error": {
+    "list": "The student list could not be loaded",
+    "record": "This student could not be loaded",
+    "account": "The balance could not be loaded",
+    "enrolments": "The enrolments could not be loaded"
+  },
+  "columns": {
+    "actions": "Actions"
   },
   "detail": {
-    "title": "Student"
-  },
-  "actions": {
-    "create": "New student"
+    "title": "Student",
+    "identity": "Identity",
+    "account": "Account",
+    "enrolments": "Enrolments",
+    "noEnrolments": "Not enrolled in anything yet",
+    "noEnrolmentsBody": "An enquiry becomes training the moment there is an enrolment to hang it on.",
+    "outstanding": "Outstanding",
+    "overdue": "Overdue",
+    "uninvoiced": "Not yet invoiced",
+    "viewInFinances": "View in Finances",
+    "age": "{years} years old"
   },
   "fields": {
     "firstName": "First name",
@@ -18,6 +48,15 @@
     "name": "Name",
     "contact": "Contact",
     "dateOfBirth": "Date of birth",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "street": "Street",
+    "houseNumber": "No.",
+    "postalCode": "Postal code",
+    "city": "City",
+    "countryCode": "Country",
+    "notes": "Notes",
     "standing": "Standing",
     "registeredAt": "Registered",
     "licenceClass": "Licence class"
@@ -27,5 +66,118 @@
     "active": "Active",
     "alumnus": "Alumnus",
     "lapsed": "Lapsed"
+  },
+  "enrolment": {
+    "status": {
+      "label": "Status",
+      "change": "Change status",
+      "enquiring": "Enquiring",
+      "active": "Active",
+      "paused": "Paused",
+      "passed": "Passed",
+      "withdrawn": "Withdrawn"
+    },
+    "dates": {
+      "enquired": "enquired {date}",
+      "started": "started {date}",
+      "closed": "closed {date}"
+    },
+    "progress": {
+      "standard": "Standard lessons",
+      "theory": "Theory",
+      "specialDrives": "Special drives",
+      "count": "{completed} / {required}",
+      "booked": "{count} still booked"
+    },
+    "requirement": {
+      "standardPractical": "Standard lessons",
+      "overlandDrive": "Overland",
+      "autobahnDrive": "Autobahn",
+      "nightDrive": "Night",
+      "basicTheory": "Basic theory",
+      "classSpecificTheory": "Class theory",
+      "theoryExamPassed": "Theory exam passed"
+    },
+    "readiness": {
+      "label": "Readiness",
+      "theory": "Theory exam",
+      "practical": "Practical exam",
+      "ready": "ready",
+      "short": "{count} short",
+      "advisory": "Advisory. The school decides when a student is presented."
+    },
+    "exams": {
+      "label": "Exams",
+      "notSat": "not sat",
+      "passed": "{exam} passed",
+      "failed": "{exam} failed",
+      "awaitingResult": "{exam} sat, no result yet"
+    },
+    "balance": {
+      "label": "Balance",
+      "outstanding": "{amount} outstanding",
+      "uninvoiced": "{amount} not yet invoiced",
+      "settled": "Nothing owed"
+    },
+    "next": {
+      "label": "Next",
+      "noneBooked": "Nothing booked"
+    },
+    "recent": {
+      "label": "Recent",
+      "summary": "The last {count} appointments",
+      "none": "Nothing has happened yet"
+    }
+  },
+  "appointmentKind": {
+    "practical": "Practical",
+    "theory": "Theory",
+    "exam": "Exam"
+  },
+  "appointmentStatus": {
+    "planned": "Planned",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "noShow": "No-show"
+  },
+  "actions": {
+    "create": "New student",
+    "edit": "Edit",
+    "delete": "Delete student",
+    "newEnrolment": "New enrolment",
+    "recordPayment": "Record payment",
+    "more": "More actions"
+  },
+  "form": {
+    "createTitle": "New student",
+    "editTitle": "Edit student",
+    "addressLegend": "Address",
+    "notesHint": "Anything the office should know. Only staff see this.",
+    "submitCreate": "Create student",
+    "submitEdit": "Save changes",
+    "created": "{name} added",
+    "updated": "{name} saved"
+  },
+  "delete": {
+    "title": "Delete this student?",
+    "body": "{name} will be removed. This cannot be undone.",
+    "hasEnrolments": "A student who has trained here is part of the school's history. Withdraw their enrolments instead.",
+    "deleted": "{name} deleted"
+  },
+  "newEnrolment": {
+    "title": "New enrolment",
+    "licenceClass": "Licence class",
+    "noneAvailable": "This student already holds an open enrolment in every class the school teaches.",
+    "pricesTitle": "Prices for this enrolment",
+    "pricesNote": "These are frozen onto the enrolment when it is created. A later price rise will not change them.",
+    "submit": "Create enrolment",
+    "created": "Enrolled in class {licenceClass}"
+  },
+  "prices": {
+    "basicFee": "Basic fee",
+    "practicalLessonUnit": "Practical lesson, per unit",
+    "specialDriveUnit": "Special drive, per unit",
+    "theoryExamFee": "Theory exam",
+    "practicalExamFee": "Practical exam"
   }
 }
