@@ -1,0 +1,13 @@
+{
+  "title": "Professional drivers",
+  "subtitle": "Teaching staff and what they may teach.",
+  "detail": {
+    "title": "Instructor"
+  },
+  "fields": {
+    "name": "Name",
+    "teaches": "Teaches",
+    "contact": "Contact",
+    "employedSince": "With the school since"
+  }
+}

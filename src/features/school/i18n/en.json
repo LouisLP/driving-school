@@ -1,0 +1,19 @@
+{
+  "title": "Driving school",
+  "subtitle": "The school's own assets and configuration.",
+  "sections": {
+    "vehicles": "Fleet",
+    "locations": "Locations",
+    "licenceClasses": "Licence classes",
+    "profile": "School profile"
+  },
+  "vehicles": {
+    "plate": "Plate",
+    "model": "Vehicle",
+    "transmission": "Gearbox",
+    "suitableFor": "Teaches",
+    "manual": "Manual",
+    "automatic": "Automatic"
+  },
+  "placeholder": "Specified after the students slice."
+}

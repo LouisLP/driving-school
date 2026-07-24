@@ -6,6 +6,10 @@
 declare module 'vue-i18n' {
   interface DefineLocaleMessage {
     dashboard: typeof import('../features/dashboard/i18n/en.json')
+    finances: typeof import('../features/finances/i18n/en.json')
+    instructors: typeof import('../features/instructors/i18n/en.json')
+    planner: typeof import('../features/planner/i18n/en.json')
+    school: typeof import('../features/school/i18n/en.json')
     shared: typeof import('../shared/i18n/en.json')
     students: typeof import('../features/students/i18n/en.json')
   }

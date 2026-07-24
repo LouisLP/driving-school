@@ -1,0 +1,13 @@
+{
+  "title": "Berufskraftfahrer",
+  "subtitle": "Lehrpersonal und ihre Fahrerlaubnisklassen.",
+  "detail": {
+    "title": "Fahrlehrer"
+  },
+  "fields": {
+    "name": "Name",
+    "teaches": "Unterrichtet",
+    "contact": "Kontakt",
+    "employedSince": "Dabei seit"
+  }
+}

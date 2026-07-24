@@ -1,7 +1,15 @@
 {
   "title": "Übersicht",
+  "subtitle": "Wie die Fahrschule heute dasteht.",
   "widgets": {
     "upcomingLessons": "Anstehende Fahrstunden",
     "openInvoices": "Offene Rechnungen"
-  }
+  },
+  "stats": {
+    "activeStudents": "Aktive Fahrschüler",
+    "lessonsToday": "Fahrstunden heute",
+    "openInvoices": "Offene Rechnungen",
+    "fleet": "Fahrzeuge im Einsatz"
+  },
+  "recentStudents": "Zuletzt angemeldet"
 }

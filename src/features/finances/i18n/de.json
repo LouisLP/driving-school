@@ -1,0 +1,11 @@
+{
+  "title": "Finanzen",
+  "subtitle": "Was die Fahrschule abgerechnet hat und was noch offen ist.",
+  "sections": {
+    "invoices": "Rechnungen",
+    "payments": "Zahlungen",
+    "priceLists": "Preislisten",
+    "debtors": "Offene Posten"
+  },
+  "placeholder": "Wird nach dem Fahrschüler-Abschnitt spezifiziert."
+}

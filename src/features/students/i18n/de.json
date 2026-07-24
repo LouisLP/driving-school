@@ -1,13 +1,31 @@
 {
   "title": "Fahrschüler",
+  "subtitle": "Alle Fahrschüler und ihr aktueller Stand.",
   "list": {
     "title": "Alle Fahrschüler",
     "empty": "Noch keine Fahrschüler",
     "count": "{count} Fahrschüler | {count} Fahrschüler"
   },
+  "detail": {
+    "title": "Fahrschüler"
+  },
+  "actions": {
+    "create": "Neuer Fahrschüler"
+  },
   "fields": {
     "firstName": "Vorname",
     "lastName": "Nachname",
+    "name": "Name",
+    "contact": "Kontakt",
+    "dateOfBirth": "Geburtsdatum",
+    "standing": "Stand",
+    "registeredAt": "Angemeldet",
     "licenceClass": "Führerscheinklasse"
+  },
+  "standing": {
+    "prospect": "Interessent",
+    "active": "Aktiv",
+    "alumnus": "Ehemalig",
+    "lapsed": "Ruhend"
   }
 }
