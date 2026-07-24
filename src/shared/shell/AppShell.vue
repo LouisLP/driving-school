@@ -91,9 +91,22 @@ watch(pageTitle, (title) => {
 </template>
 
 <style scoped>
+/*
+ * `grid-template-rows` is stated, and it is `minmax(0, 1fr)` rather than left implicit.
+ *
+ * Without it the single row is implicit and therefore `auto`, which sizes to its items' max-content
+ * — and a grid item's automatic minimum size is its content, so neither the sidebar nor the body
+ * could shrink below the length of whatever the page happened to be. The row grew past `100dvh`,
+ * the whole shell scrolled as one, and the sidebar's footer walked off the bottom of the screen
+ * instead of the content pane scrolling on its own.
+ *
+ * `minmax(0, 1fr)` gives the row a zero minimum, so it takes exactly the `100dvh` on offer and the
+ * overflow lands where it was always meant to: `.nav` and `.content`, which both scroll themselves.
+ */
 .shell {
   display: grid;
   grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   block-size: 100dvh;
 }
 
