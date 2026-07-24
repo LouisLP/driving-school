@@ -31,7 +31,7 @@
  * touches none of these tokens.
  *
  * The corollary is the rule that makes it hold: a colour, shadow or z-index in
- * a component MUST come from this file. Reach for `var(--indigo-600)` in a
+ * a component MUST come from this file. Reach for `var(--violet-600)` in a
  * component and that spot stays light-mode forever.
  *
  * ── Elevation in dark mode ─────────────────────────────────────────────────
@@ -67,12 +67,12 @@ html {
   /* Interaction states for neutral surfaces. */
   --surface-hover: light-dark(var(--neutral-100), var(--neutral-850));
   --surface-active: light-dark(var(--neutral-200), var(--neutral-800));
-  --surface-selected: light-dark(var(--indigo-100), var(--indigo-900));
+  --surface-selected: light-dark(var(--violet-100), var(--violet-900));
   --surface-disabled: light-dark(var(--neutral-100), var(--neutral-850));
 
   /* Backdrop behind a modal. Same in both schemes — it darkens, it does not
      theme. */
-  --surface-scrim: oklch(17% 0.007 285 / 0.6);
+  --surface-scrim: oklch(17% 0.007 299.3 / 0.6);
 
   /* ── Text ──────────────────────────────────────────────────────────────── */
   --text-primary: light-dark(var(--neutral-900), var(--neutral-50));
@@ -88,9 +88,9 @@ html {
      solid steps are chosen so this always clears 4.5:1. */
   --text-on-solid: var(--neutral-0);
 
-  --text-accent: light-dark(var(--indigo-700), var(--indigo-300));
-  --text-link: light-dark(var(--indigo-700), var(--indigo-300));
-  --text-link-hover: light-dark(var(--indigo-800), var(--indigo-200));
+  --text-accent: light-dark(var(--violet-700), var(--violet-300));
+  --text-link: light-dark(var(--violet-700), var(--violet-300));
+  --text-link-hover: light-dark(var(--violet-800), var(--violet-200));
 
   /* ── Borders ───────────────────────────────────────────────────────────── */
   /* `subtle` and `default` are decorative separators. `strong` and
@@ -98,20 +98,104 @@ html {
   --border-subtle: light-dark(var(--neutral-200), var(--neutral-850));
   --border-default: light-dark(var(--neutral-300), var(--neutral-800));
   --border-strong: light-dark(var(--neutral-500), var(--neutral-600));
-  --border-accent: light-dark(var(--indigo-600), var(--indigo-400));
+  --border-accent: light-dark(var(--violet-600), var(--violet-400));
 
   /* ── Accent ────────────────────────────────────────────────────────────── */
   /* Hover and active darken in BOTH schemes rather than lightening in dark.
      Lightening past step 600 would drop white-on-solid below 4.5:1, and a
      state that fails contrast is worse than one that reads slightly
      unconventionally. */
-  --accent-solid: light-dark(var(--indigo-600), var(--indigo-600));
-  --accent-solid-hover: light-dark(var(--indigo-700), var(--indigo-700));
-  --accent-solid-active: light-dark(var(--indigo-800), var(--indigo-800));
-  --accent-subtle: light-dark(var(--indigo-100), var(--indigo-900));
-  --accent-subtle-hover: light-dark(var(--indigo-200), var(--indigo-850));
-  --accent-border: light-dark(var(--indigo-300), var(--indigo-800));
-  --accent-text: light-dark(var(--indigo-800), var(--indigo-300));
+  --accent-solid: light-dark(var(--violet-600), var(--violet-600));
+  --accent-solid-hover: light-dark(var(--violet-700), var(--violet-700));
+  --accent-solid-active: light-dark(var(--violet-800), var(--violet-800));
+  --accent-subtle: light-dark(var(--violet-100), var(--violet-900));
+  --accent-subtle-hover: light-dark(var(--violet-200), var(--violet-850));
+  --accent-border: light-dark(var(--violet-300), var(--violet-800));
+  --accent-text: light-dark(var(--violet-800), var(--violet-300));
+
+  /* ── Accent · decoration ───────────────────────────────────────────────── */
+  /*
+   * The brand sweep, and the only place the off-ladder `--violet-brand*`
+   * primitives are allowed out. Both ends sit at the step-600 lightness, so the
+   * gradient changes hue and not value.
+   *
+   * Reserved for the BRAND MARK. It is not the primary button's fill and not a
+   * general "accent surface": a hue sweep across every filled control is a
+   * period costume, and it dates the whole app to the season it was applied. A
+   * logo is the one thing allowed to be expressive, because it is the one thing
+   * that is not repeated forty times down a page. Use `--accent-sheen` for
+   * controls.
+   *
+   * Identical in both schemes on purpose. This is the brand; it does not get
+   * darker because the OS did.
+   */
+  --accent-gradient: linear-gradient(
+    135deg,
+    var(--violet-brand-cool) 0%,
+    var(--violet-brand) 55%,
+    var(--violet-brand-warm) 100%
+  );
+
+  /*
+   * The same sweep at low alpha, for washes behind content — a tile's corner, an
+   * unbuilt section. Never put text on it without checking the surface beneath.
+   *
+   * Dark carries LESS alpha, not more. The instinct is to compensate for the
+   * darker page by pushing it up; the result is a slab of flat purple, because
+   * a translucent colour over near-black has nothing to blend toward and just
+   * becomes the colour.
+   */
+  --accent-wash: linear-gradient(
+    135deg,
+    light-dark(oklch(53% 0.253 270 / 0.1), oklch(53% 0.253 270 / 0.07)) 0%,
+    light-dark(oklch(54.79% 0.294 299.3 / 0.1), oklch(54.79% 0.294 299.3 / 0.07)) 100%
+  );
+
+  /*
+   * What a filled control actually wears: the flat `*-solid` colour underneath,
+   * plus a barely-there light from above. Lay it over a `background-color`, not
+   * instead of one.
+   *
+   * 9 % white across the top half and gone by the middle. That is a bevel, the
+   * oldest trick there is for making a rectangle read as pressable — it is
+   * doing the job a hue sweep was doing, without announcing itself. If you can
+   * name the two colours in it, it is too strong.
+   *
+   * Costs 0.7 of a contrast point at the very top edge (6.19:1 down to 5.51:1
+   * for white on the accent), which is why it stops at 9 %.
+   *
+   * Hue-neutral, so the same token works on the danger and success fills.
+   */
+  --accent-sheen: linear-gradient(
+    oklch(100% 0 0 / 0.09) 0%,
+    oklch(100% 0 0 / 0) 55%
+  );
+
+  /* A coloured halo under a lifted accent surface. Costs nothing in light mode
+     where the shadow already reads, and does the whole job in dark mode where a
+     black shadow does not. For the brand mark — a glowing BUTTON is the same
+     costume as a gradient one. */
+  --accent-glow: 0 6px 20px -6px light-dark(
+    oklch(54.79% 0.294 299.3 / 0.45),
+    oklch(54.79% 0.294 299.3 / 0.55)
+  );
+
+  /* ── Interaction tints ─────────────────────────────────────────────────── */
+  /*
+   * Flat darkening to lay OVER a fill that already has a colour of its own —
+   * the gradient on the primary button being the case that needs it. A
+   * `*-solid-hover` token cannot help there: it is a colour, and the gradient
+   * covers it.
+   *
+   * Use as the first layer of `background-image`, never as `filter`. A filter
+   * dims the label along with the fill and quietly costs contrast; a background
+   * layer darkens only what is behind the text.
+   *
+   * Not `light-dark()`. These sit on brand and status fills, which are the same
+   * in both schemes, so the tint that reads correctly on them is too.
+   */
+  --tint-hover: linear-gradient(oklch(0% 0 0 / 0.14), oklch(0% 0 0 / 0.14));
+  --tint-press: linear-gradient(oklch(0% 0 0 / 0.24), oklch(0% 0 0 / 0.24));
 
   /* ── Status ────────────────────────────────────────────────────────────── */
   /* Four roles, identical shape, so a Badge or Callout can switch hue with one
@@ -149,7 +233,7 @@ html {
   /* ── Focus ─────────────────────────────────────────────────────────────── */
   /* Use as `outline: var(--focus-ring); outline-offset: var(--focus-ring-offset)`
      on `:focus-visible` only — never on `:focus`, which also fires on click. */
-  --focus-ring-color: light-dark(var(--indigo-600), var(--indigo-400));
+  --focus-ring-color: light-dark(var(--violet-600), var(--violet-400));
   --focus-ring-width: var(--border-width-thick);
   --focus-ring-offset: 2px;
   --focus-ring: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -184,27 +268,27 @@ html {
    * arguments. Each layer is therefore its own `light-dark()`, composed into
    * the public token. The `--_`-prefixed halves are private: use `--shadow-*`.
    */
-  --_shadow-key-xs: light-dark(0 1px 2px oklch(17% 0.007 285 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.5));
-  --_shadow-key-sm: light-dark(0 1px 3px oklch(17% 0.007 285 / 0.08), 0 1px 3px oklch(0% 0 0 / 0.6));
-  --_shadow-fill-sm: light-dark(0 1px 2px oklch(17% 0.007 285 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.4));
+  --_shadow-key-xs: light-dark(0 1px 2px oklch(17% 0.007 299.3 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.5));
+  --_shadow-key-sm: light-dark(0 1px 3px oklch(17% 0.007 299.3 / 0.08), 0 1px 3px oklch(0% 0 0 / 0.6));
+  --_shadow-fill-sm: light-dark(0 1px 2px oklch(17% 0.007 299.3 / 0.06), 0 1px 2px oklch(0% 0 0 / 0.4));
   --_shadow-key-md: light-dark(
-    0 4px 12px -2px oklch(17% 0.007 285 / 0.1),
+    0 4px 12px -2px oklch(17% 0.007 299.3 / 0.1),
     0 4px 12px -2px oklch(0% 0 0 / 0.65)
   );
   --_shadow-fill-md: light-dark(
-    0 2px 4px -2px oklch(17% 0.007 285 / 0.06),
+    0 2px 4px -2px oklch(17% 0.007 299.3 / 0.06),
     0 2px 4px -2px oklch(0% 0 0 / 0.5)
   );
   --_shadow-key-lg: light-dark(
-    0 12px 24px -6px oklch(17% 0.007 285 / 0.12),
+    0 12px 24px -6px oklch(17% 0.007 299.3 / 0.12),
     0 12px 24px -6px oklch(0% 0 0 / 0.7)
   );
   --_shadow-fill-lg: light-dark(
-    0 4px 8px -4px oklch(17% 0.007 285 / 0.08),
+    0 4px 8px -4px oklch(17% 0.007 299.3 / 0.08),
     0 4px 8px -4px oklch(0% 0 0 / 0.55)
   );
   --_shadow-key-xl: light-dark(
-    0 24px 48px -12px oklch(17% 0.007 285 / 0.18),
+    0 24px 48px -12px oklch(17% 0.007 299.3 / 0.18),
     0 24px 48px -12px oklch(0% 0 0 / 0.8)
   );
 

@@ -12,7 +12,30 @@
  *
  * Rule of thumb: if adding a class here would need a second one next week for the same idea at a
  * different size, it is a component, not a utility.
+ *
+ * ── The tuning properties do not inherit ───────────────────────────────────
+ *
+ * Custom properties inherit, and these are custom properties, so on their own
+ * `style="--stack-gap: var(--gap-section)"` would set the gap of the element it is written on AND
+ * of every `.stack` nested anywhere inside it. That is never what the caller means — it is how the
+ * dashboard ended up with 48px between a heading and its own list — and it is invisible until
+ * someone nests a layout two levels down.
+ *
+ * The reset below scopes each knob to the element it was written on: `initial` resolves a custom
+ * property to the guaranteed-invalid value, which makes every `var(--knob, fallback)` below take
+ * its fallback. A nested layout therefore starts from the default and opts in for itself, exactly
+ * like a fresh one.
  */
+
+.stack > *,
+.cluster > *,
+.grid > * {
+  --stack-gap: initial;
+  --cluster-gap: initial;
+  --cluster-align: initial;
+  --grid-gap: initial;
+  --grid-min: initial;
+}
 
 /* Vertical rhythm. The single most-used layout in the app. */
 .stack {

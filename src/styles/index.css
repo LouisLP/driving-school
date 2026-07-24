@@ -15,6 +15,7 @@
  *
  * What that buys, read top-down:
  *
+ *   fonts      `@font-face` only. First because nothing may override a file.
  *   reset      Comeau's reset. Removes browser opinions.
  *   tokens     The two token tiers. Values only, no selectors beyond `:root`.
  *   base       Our opinions on bare elements — body, headings, links, focus.
@@ -26,8 +27,9 @@
  * belongs in a token, not in a more specific selector.
  */
 
-@layer reset, tokens, base, utilities;
+@layer fonts, reset, tokens, base, utilities;
 
+@import url("./fonts.css") layer(fonts);
 @import url("./reset.css") layer(reset);
 @import url("./tokens/primitives.css") layer(tokens);
 @import url("./tokens/semantic.css") layer(tokens);

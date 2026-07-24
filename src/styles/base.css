@@ -19,12 +19,25 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Headings are the display face. `h4`–`h6` are not: at `--text-base` they are labels rather than
+ * headings, and a display face that small stops reading as a voice and starts reading as a bug.
+ */
 h1, h2, h3, h4, h5, h6 {
   line-height: var(--leading-snug);
   font-weight: var(--weight-semibold);
 }
 
-h1 { font-size: var(--text-2xl); letter-spacing: var(--tracking-tight); }
+h1, h2, h3 {
+  font-family: var(--font-display);
+
+  /* Clash Display is drawn tight; the extra negative tracking the system stack wants would close
+     its counters up. One step, and only because the face is already narrow. */
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: normal;
+}
+
+h1 { font-size: var(--text-3xl); line-height: var(--leading-tight); font-weight: var(--weight-bold); }
 h2 { font-size: var(--text-xl); }
 h3 { font-size: var(--text-lg); }
 h4, h5, h6 { font-size: var(--text-base); }

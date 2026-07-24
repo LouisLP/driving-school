@@ -1,0 +1,59 @@
+/**
+ * FONTS — the `@font-face` declarations, and nothing else.
+ *
+ * Its own file and its own layer because a font is neither a reset nor a token: `primitives.css`
+ * decides which STACKS exist (`--font-display`, `--font-sans`), this file decides which FILES back
+ * them. Swapping typeface is then two edits in two places that each mean one thing.
+ *
+ * ── Why self-hosted ────────────────────────────────────────────────────────
+ *
+ * The files are committed under `src/assets/fonts/` rather than pulled from Fontshare's CDN. A
+ * back office is used in places with unreliable networks and the headings are the first thing on
+ * screen; a third-party request in the critical path is a rendering risk with no upside, and it
+ * leaks every user's IP to a CDN we do not control. Vite fingerprints and inlines these into the
+ * build, so they are cache-busted with everything else.
+ *
+ * Clash Display is by Indian Type Foundry, under the ITF Free Font Licence — free to use and to
+ * redistribute in a product, which is what committing the files does.
+ *
+ * ── Why four static weights and not the variable file ──────────────────────
+ *
+ * Four cuts at ~15 kB each is 60 kB total, against ~90 kB for the variable font. We use exactly
+ * four weights and will never interpolate between them, so the variable file would cost more to
+ * deliver less.
+ *
+ * `swap` rather than `block`: a heading in the fallback for one frame beats a heading that is not
+ * there at all. `--font-display` names a metrically close fallback so the reflow is small.
+ */
+
+@font-face {
+  font-family: "Clash Display";
+  src: url("../assets/fonts/clash-display-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Clash Display";
+  src: url("../assets/fonts/clash-display-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Clash Display";
+  src: url("../assets/fonts/clash-display-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Clash Display";
+  src: url("../assets/fonts/clash-display-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
